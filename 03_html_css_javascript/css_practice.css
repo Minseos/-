@@ -161,7 +161,7 @@ div.parents > p{
 
 
 
-
+/* 책 5.4 (p.156) */
 /* 가장 중요함 */
 /* 링크 셀렉터 
 : link 셀렉터가 방문하지 않은 링크일 때
@@ -196,4 +196,129 @@ input[type=text]:focus{
 div.structural p:first-child{
     color: red;
 }
+
+
+div.structural p:last-child{
+    color: blue;
+}
+
+/* :nth-child(n)     : 셀렉터에 해당하는 모든 요소 중 앞에서 n번째인 자식 요소를 선택
+ :nth-last-child(n)  : 셀렉터에 해당하는 모든 요소 중 뒤에서 n번째인 자식 요소를 선택
+ */
+
+ /* n = 0, 짝수 2n, 홀수 2n+1 */
+ /* ol 요소의 자식 요소인 li 요소 중 */
+div.nth_child ol > li:nth-child(2n){
+    color: orange;
+}
+
+div.nth_child ol > li:nth-child(2n+1){
+    color: red;
+}
+
+div.nth_child ul > li:nth-child(4){
+    color: green;
+}
+
+/* 뒤에서부터 짝수로 올라옴 */
+div.nth_child ul > li:nth-last-child(2n){
+    font-size: 20px;
+}
+
+/*  :first-of-type  : 셀렉터에 해당하는 요소의 부모 요소의 자식 중에서
+                        첫 번째로 등장하는 요소를 선택
+    :last-of-type   : 셀렉터에 해당하는 요소의 부모 요소의 자식 중에서 
+                        마지막에 등장하는 요소를 선택
+    :nth-of-type(n) : 셀렉터에 해당하는 요소의 부모 요소의 자식 요소 중 앞에서 
+                        n번째에 등장하는 요소를 선택
+    :nth-last-of-type(n) : 셀렉터에 해당하는 요소의 부모 요소의 자식 요소 중 
+                        뒤에서 n번째에 등장하는 요소를 선택
+*/
+
+div.of_type p:first-of-type{
+    color: red;
+}
+div.of_type p:last-of-type{
+    color: blue;
+}
+div.of_type p:nth-of-type(2){
+    color: green;
+}
+div.of_type p:nth-of-type(2n+1){
+    font-size :20px;
+    color: brown;
+}
+
+
+/* 정합식 체크 셀렉터
+    :vaild   : 정합성 검증이 성공한 input요소 / form요소를 선택
+    :invaild : 정합성 검증이 실패한 input요소 / form요소를 선택
+
+*/
+div.vaildity input[type = "text"]:valid{
+    background-color: greenyellow;
+}
+div.vaildity input[type = "text"]:invalid{
+    background-color: red;
+}
+
+
+/* 가상요소 셀렉터
+::first-letter : 콘텐츠의 첫 글자를 선택
+::first-line : 콘텐츠의 첫 줄을 선택, 블록요소만 적용
+::after : 콘텐츠의 뒤에 공간을 선택, content와 함께 사용
+::before : 콘텐츠의 앞에 공간을 선택, content와 함께 사용
+ */
+
+div.pseudo_ele p::first-letter{
+    font-size: 3em;     /* em : 3배로 키워라 */
+}
+
+div.pseudo_ele p::first-line{
+    color: red;
+}
+
+div.pseudo_ele h2::before{  /* 가상에 공간인 앞에 넣는 거임*/
+    content: "HTML!!!";
+    color: blue;
+}
+
+div.pseudo_ele h2::after{  /* 가상에 공간인 뒤에 넣는 거임*/
+    content: "CSS!!!";
+    color: red;
+}
+
+div.pseudo_ele ::selection{ /* 드래그를 했을 때*/
+    color: red;
+    background-color: yellow;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

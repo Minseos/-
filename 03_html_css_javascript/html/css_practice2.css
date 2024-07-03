@@ -1,0 +1,304 @@
+/* 폰트/화면 크기의 단위
+1. 절대단위 px 모니터의 화면을 구성하는 점 1개의 크기
+2. % 비율 20%
+3. em 부모 요소의 텍스트 크기에 상대적인 크기 1em, 2em
+    부모요소의 font-size : 10px일 때 자식 요소의 font-size:2em이면
+    자식 요소의 크기는 20px이 된다.
+4. rem html 태그의 텍스트 크기에 상대적 크기 1rem, 2rem
+    html의 기본 폰트 사이즈가 16일 때 2rem은 32px이 된다.(반응형 웹) 
+5. vw 뷰포트 너비를 기준으로 상대적인 크기를 갖음(반응형 웹)
+6. vh 뷰포트 너비를 기준으로 상대적인 크기를 갖음 (반응형 웹)
+*/
+
+.parent{
+    font-size: 10px;
+    color: gray;
+}
+
+.child{
+    font-size: 200%;
+    /* 1-1은 20px이 된거
+        2는 원래 크기에서 200%가 된것이므로 둘이 사이즈가 다름 
+    */
+}
+
+.child-to-child{
+    font-size: 2rem;
+    /* 웹 기본이 16px인데 2rem을 줘서 32px이 됨 */
+}
+
+.parent{
+    font-size: 1vw;
+}
+
+.child{
+    font-size: 2vw;
+}
+
+/* 색상 표기법 
+1. 키워드 표기법 : black, white, red 150여개
+2. RGB 표기법 : red, green, blue. 255밝음, 0 어두움
+    rgb(red, green, blue)
+3. RGBA 표기법 : RGB에 알파 채널 추가(투명도)
+    rgb(red, green, blue, alpha)
+    alpha 1 불투명, 0 투명
+4. HEX표기법 : RGB를 16진수로 표현 1~9,a~f까지 
+    #redgreenblue #00ff00
+*/
+
+.child{
+    color: rgb(10,25,240);
+}
+
+.child-to-child{
+    color: rgba(248,25,240, 0.3);
+}
+
+.font-size > p{
+    color: #aaff22;
+}
+
+
+/* 텍스트 속성 */
+/* font-family */
+.font-size > p {
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    /* 폰트 여러개가 있는 이유는 그 폰트가 없을 때 그 다음 폰트를 쓸 수 있게 함 */
+}
+
+/* font-size */
+/* 절대 값은 px, %, em은 부모요소에 따라 상대적으로 변한다. */
+/* rem은 웹브라우저의 기본 폰트 사이즈를 기준으로 변함 */
+.font-size > p{
+    font-size: 0.7rem;
+}
+
+/* font-weight 굵기 
+1. 숫자 표기법 100 ~ 900
+2. 키워드 표기법 lighter, normal, bold, bolder
+    ligter, border는 부모 요소에 상대적인 값
+    normal 400
+    bold 700
+*/
+
+.font-size p:first-child{
+    font-weight: bold;
+}
+
+
+/* font-size 
+normal, litalic 기울임, oblique 기울임
+*/
+.font-size p.italic{
+    font-size: 200%;
+    font-style: italic;
+    color: black;
+}
+
+.font-size p.oblique{
+    font-size: 2rem;
+    font-style: oblique;
+    color: gray;
+}
+
+/* text-align */
+/* 글자 위치 정렬 left, right, center, justify */
+.font-size :nth-child(2){
+    text-align: center;
+}
+
+.font-size :nth-child(3){
+    text-align: justify;
+    color: red;
+}
+
+
+/* text-decoration 글자에 선긋기 */
+/* line-through : 텍스트 중간에 선긋기 
+    overline : 텍스트 위에 선긋기
+    underline : 텍스트 밑에 선긋기
+*/
+.font_option :nth-child(2){
+    text-decoration: line-through;
+}
+
+.font_option :nth-child(3){
+    text-decoration: overline;
+}
+
+.font_option :nth-child(4){
+    text-decoration: underline;
+}
+
+/* link에는 원래 underline이 존재하는데 underline없애기 */
+.font_option a{
+    text-decoration: none;
+}
+
+/* letter-spacing : 문자의 자간 설정 */
+.font_option :nth-child(5){
+    letter-spacing: 10px;
+}
+
+/* line-height
+normal, 숫자, %, px로 조절 가능
+*/
+.font_option :nth-child(6){
+    line-height: 10px;
+}
+.font_option :nth-child(7){
+    line-height: 200%x;
+}
+
+/* boxmodel
+margin영역
+마진은 요소와 요소 사이의 간격 */
+/* .box1 .box2 .box3 .box4 .box5{
+    border: solid 1px black;
+    margin: 20%;
+} */
+
+.boxmodel .box1{
+    border: solid 1px black;
+    margin: 20%;
+}
+
+.boxmodel .box2{
+    border: solid 1px black;
+    margin: 20%;
+}
+
+.boxmodel .box3{
+    border: solid 1px black;
+}
+
+.boxmodel .box4{
+    width : 98px;
+    border: solid 1px black;
+    margin: auto;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    padding: 10px;
+}
+
+.boxmodel .box5{
+    width: 200px;
+    border: solid 1px black;
+    margin: 10px 0 10px 20px;
+}
+
+
+.boxmodel2 .box1_1{
+    border-color: rgba(225,0,0,0.3);
+    border-width :2px ;
+    border-style : dotted ;
+
+}
+
+.boxmodel2 .box2_1{
+    border-color: rgba(225,0,0,0.3);
+    border-width: 5px;
+    border-style: dashed;
+    margin: 10px 0 10px 0;
+}
+
+.boxmodel2 .box3_1{
+    border-color:black;
+    border-width: 5px;
+    border-style: double;
+    margin: 10px 0 10px 0;
+}
+
+.boxmodel2 .box4_1{
+    border-color: black;
+    border-width: 5px;
+    border-style: groove;
+    margin: 10px 0 10px 0;
+}
+
+.boxmodel2 .box5_1{
+    border-color: black;
+    border-width: 5px;
+    border-style: ridge;
+    margin: 10px 0 10px 0;
+}
+
+.boxmodel2 .box6_1{
+    border-color: red;
+    border-width: 20px;
+    border-style: inset;
+    margin: 10px 0 10px 0;
+}
+
+.boxmodel2 .box7_1{
+    border-color: red;
+    border-width: 20px;
+    border-style: outset;
+    margin: 10px 0 10px 0;
+}
+
+.boxmodel2 .box8_1{
+    height: 200px;
+    border-color: skyblue;
+    border-width: 10px;
+    border-style: dashed;
+    border-bottom-style: dotted;
+    border-left-style: double;
+    border-right-style: ridge;
+    border-top-color: blue;
+    border-bottom-color: yellow;
+    border-top-left-radius:  50%;
+    border-top-right-radius: 50%;
+    margin: 10px 0 10px 0;
+}
+
+/* padding 영역 */
+.boxmodel2 .box7_1{
+    padding: 10px;
+}
+
+/* 요소의 배경 속성으로 배경색, 이미지 넣기 */
+/* background-repeat : no-repeat, repeat-x, repeat-y, repeat, round, space */
+.boxmodel2 .box9_1{
+    background-color: gray;
+}
+
+.boxmodel2 .box9_1{
+    background-image: url('다운로드.jfif');
+    background-repeat: no-repeat;
+}
+
+/* background-size
+auto : 이미지 크기 유지
+cover : 가로세로 비율 유지, 크기를 확대해 꽉 채움
+contain : 비율 유지 이미지가 배경 요소에 들어가도록 확대
+*/
+
+/* background-position : x위치, y위치 */
+
+.boxmodel2 .box8_1{
+    background-image: url('다운로드.jfif');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
