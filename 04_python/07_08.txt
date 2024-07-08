@@ -1,0 +1,260 @@
+수업
+
+https://github.com/conda-forge/miniforge?tab=readme-ov-file
+
+아나콘다 설치
+
+just me로 설치
+
+miniforge prompt를 설치 후 conda를 입력
+
+설치가 완료된 걸 알 수 있음
+
+conda create -n testenv python=3.11
+
+파일을 만들고 python 버전을 지정해줌
+
+conda activate testenv을 하면 testenv로 들어감
+
+목록 확인
+
+conda list 
+
+conda install scikit-learn - 라이브러리 설치
+
+numpy, scikit 등등 설치됨
+
+삭제하려면 그 폴더 밖으로 나가야됨
+
+conda remove -n testenv --all
+
+가상화면보기
+
+conda info --envs 
+
+지웠는데 만약에 폴더 안에 들어있다면, 직접 들어가서 삭제하면 됨
+
+PC 설정
+
+conda create -n fintech python=3.10 
+
+정리
+
+가상환경 만들기
+
+conda create -n 가상환경명 python=버전명
+
+가상환경 목록
+
+conda info --envs
+
+가상환경 활성화 하기
+
+conda activate 가상환경명
+
+설치된 패키지 리스트 보기
+
+conda list
+
+패키지 설치
+
+conda install
+
+가상환경 삭제
+
+conda remove -n 가상환경명 --all
+
+Jupyter 설치
+
+jupyter notebook하면 jupyter가 chrome에서 열림
+
+.jupyter 경로에서 jupyter_notebook_config.py를 vscode로 열고 983번째
+
+## The directory to use for notebooks and kernels.
+#  Default: ''
+# c.ServerApp.root_dir = ''
+
+이 부분을 찾아서 
+
+c.ServerApp.root_dir = 'C:/fintech_service'
+
+이렇게 바꾸면 된다
+
+경로가 \가 아닌 /로 변경해주어야된다
+
+#과 공백도 삭제해야된다
+
+Jupyter
+
+dd하면 한 줄 삭제
+
+모두 파랑색일 때만 사용가능
+
+C : 복사
+
+V : 붙여넣기
+
+X : 잘라내기
+
+m : 마크다운
+
+Ctrl + enter : 실행
+
+Shift + enter : 실행 후 한칸 내려가기
+
+마크다운 문법으로 글 작성 가능
+
+Y : 코드모드
+
+마크다운에서는 html, css도 사용이 가능하다
+
+**하면 굵은 글씨로 나옴
+
+# 주피터 노트북 사용법
+
+## 셀모드 : 셀 왼쪽 빈 공간 클릭 => 파란색으로 활성화
+
+* 위에 셀 추가 :  a키
+
+* 아래 셀 추가 :  b키
+
+* 셀 복사 :  c키
+
+* 셀 잘라내기 :  x키
+
+* 셀 붙여넣기 :  v키
+
+* **markdown 모드 : m키
+
+* **coding 모드 : y키
+
+## 코딩모드 : 셀 안쪽 클릭 => 녹색으로 활성화 셀 왼쪽에 In[] : 가 있음
+
+## 마크다운 모드
+
+*  수식 넣기 :  $$ Tex $$
+
+$$ (A \cap B) $$ <br>
+
+문법 확인
+
+https://ko.wikipedia.org/wiki/%EC%9C%84%ED%82%A4%EB%B0%B1%EA%B3%BC:TeX_%EB%AC%B8%EB%B2%95
+
+## 코딩모드 : 셀 안쪽 클릭 => 녹색으로 활성화 셀 왼쪽에 In[] : 가 있음
+
+* 링크걸기
+
+[네이버링크](https://naver.com)
+
+* 이미지 넣기
+
+![파이썬 이미지](이미지링크)
+
+* 이미지 넣기2
+
+![내 컴퓨터 이미지](C:\fintech_service\다운로드.jfif)
+
+# 파이썬 기초 문법
+
+* 파이썬은 세미콜론(;)을 쓰지 않는다.
+
+* 한 줄에 여러 명령을 쓸 때 사용.
+
+* 파이썬의 주석은 문장 앞에 #을 붙인다. ctrl + /
+
+* 파이썬은 들여쓰기를 사용해서 코드를 구분해 작성한다.
+
+* 들여쓰기는 4칸이 기본(스페이스바 사용) google colab은 2칸
+
+* 변수를 만들 때 스네이크 표기법을 사용한다. user_name
+
+* 클래스를 만들 때는 카멜 표기법을 사용한다. ex) UserName, RandomForestClassifirer()
+
+# 변수
+
+* 영문, 숫자를 조합해서 만들 수 있다.
+
+* 문자부터 시작해야 하며 숫자부터 시작하면 안된다
+
+* 대소문자를 구분한다
+
+* _로 시작할 수 있다. -는 안됨
+
+* 특수문자 사용안됨
+
+* 파이썬의 키워드(예약어), if, for while, str은 사용할 수 없다
+
+* 변수는 스네이크 표기법으로 명명한다
+
+# 키보드 입력받기 input()
+
+* input() 함수로 입력받는 모든 값을 문자열로 저장된다.
+
+* 반드시 형변환 필요
+
+1.
+num = input()
+num2 = input()
+print(num+num2)
+=> 5
+ 10
+510
+
+2.
+um = input()
+num2 = input()
+print(int(num)+int(num2))
+=> 5
+ 10
+15
+
+3.
+num, num2 = input().split()
+print(int(num)+int(num2))
+=>  5 10
+15
+
+
+변수 삭제하기 del 변수명
+
+# 파이썬은 변수에 담는 자료에 따라서 동적으로 자료형 정해짐
+
+정수형 변수(int, integer)
+
+## 문단을 통채로 넣는법 ''' ''', """ """
+
+리스트(list)
+
+순서가 있는 자료형
+
+여러 개의 자료를 넣을 수 있다
+
+여러 개의 데이터 타입의 자료를 넣을 수 있다
+
+인덱스로 호출이 가능
+
+슬라이싱으로 부분 출력이 가능
+
+리스트는 []안에 자료를 넣어서 만듦
+
+튜플은 ()안에 자료를 넣어서 만듦
+
+
+인덱싱 : 리스트, 튜플에서 인덱스 번호를 이용해서 자료를 출력
+
+인덱스는 자료의 순번
+
+슬라이싱 : 인덱스의 범위 지정해서 여러개의 자료를 가져오는 것
+
+변수명[시작인덱스 : 끝 인덱스 + 1]
+
+딕셔너리형(dict) JSON
+
+{key:value} 형태의 자료향
+
+순서가 없는 자료형
+
+반복 불가
+
+key를 호출하면 value가 출력
+
