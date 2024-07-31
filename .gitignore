@@ -6,3 +6,4 @@ dist
 *.exe
 .ipynb_checkpoints
 __pycache__
+.env_db
