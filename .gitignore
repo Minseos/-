@@ -1,1 +1,8 @@
 .env
+.dbenv
+dbenv.py
+build
+dist
+*.exe
+.ipynb_checkpoints
+__pycache__
