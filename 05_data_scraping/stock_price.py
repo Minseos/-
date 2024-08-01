@@ -16,7 +16,7 @@ def str2int(x):
     return x
 
 def db_connect():
-    engine = create_engine("%s+%s+%s://%s:%s@%s:%s/%s" %(db,dbtype, id, pw, host, database))
+    engine = create_engine("%s+%s://%s:%s@%s/%s" % (db, dbtype, id, pw, host, database))
     conn = engine.connect()
     return conn
 
