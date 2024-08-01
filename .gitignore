@@ -7,3 +7,8 @@ dist
 .ipynb_checkpoints
 __pycache__
 .env_db
+.env_db2
+env_db2
+exdbinfo.py
+
+
