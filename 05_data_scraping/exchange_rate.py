@@ -14,6 +14,7 @@ import dbio
 import warnings
 warnings.simplefilter(action = 'ignore', category = FutureWarning)
 
+##하루치
 today = str(date.today())
 
 ## 위에 있는거 합쳐서 한번에
@@ -60,4 +61,5 @@ df = df[[*sorted_cols]]
 
 
 # db에 저장
-dbio.exi_to_db("exchange_rate", today, df)
+dbio.exi_to_db("exchange_rate_1995_2024", today, df)
+driver.close()
