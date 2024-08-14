@@ -10,5 +10,5 @@ __pycache__
 .env_db2
 env_db2
 exdbinfo.py
-
-
+movie_title_data.tsv
+*.tsv
