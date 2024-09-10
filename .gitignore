@@ -12,3 +12,5 @@ env_db2
 exdbinfo.py
 movie_title_data.tsv
 *.tsv
+.keras
+model
