@@ -14,3 +14,5 @@ movie_title_data.tsv
 *.tsv
 *.keras
 model
+*.models
+*.safetensors
