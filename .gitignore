@@ -16,3 +16,5 @@ movie_title_data.tsv
 model
 *.models
 *.safetensors
+C:/fintech_service/06_machine_learning/mini_project/data
+/06_machine_learning/mini_project/data/
