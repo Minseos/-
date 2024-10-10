@@ -1,0 +1,17 @@
+yfinance
+pandas
+numpy
+pandas-ta
+streamlit
+matplotlib
+yahoo_fin
+stqdm
+requests_html
+tqdm
+langchain
+langchain_openai
+langchain_experimental 
+langchain-community
+tabulate
+seaborn
+mplfinance

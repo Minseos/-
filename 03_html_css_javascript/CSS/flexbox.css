@@ -1,0 +1,79 @@
+.flex-container{
+    width: 300px;
+    height: 200px;
+    background-color: gray;
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+
+    /* 요소의 방향 */
+    /* flex-direction :row;
+    flex-direction: row-reverse;
+    flex-direction: column;
+    flex-direction: column-reverse; */
+
+    /* 제한된 영역을 넘었을 때 줄바꿈 wrap */
+    /* flex-direction: wrap;
+    flex-direction: wrap-reverse; */
+
+
+    /* flex-flow direction + wrap */
+    flex-flow: row wrap;
+
+    /* 가로방향(x축) 아이템 정렬 */
+    /* justify-content: flex-start; */
+    /* justify-content: flex-end; */
+    /* justify-content: center; */
+    /* justify-content: space-between; */
+    /* justify-content: space-around; */
+    justify-content: space-evenly;
+
+    /* align-items(y축) 아이템 정렬 */
+    /* align-items: stretch; */
+    /* align-items: flex-start; */
+    /* align-items: flex-end; */
+    /* align-items: center; */
+    /* align-items: baseline; */
+
+    /* align-content wrap이 되어 2줄 이상이 될 때 사용 */
+    /* align-content: flex-start; */
+    /* align-content: flex-end; */
+    /* align-items: center; */
+    /* align-content: first baseline; */
+    /* align-content: last baseline; */
+    /* align-content: normal; */
+
+    /* 아이템을 각각 정렬 align-self */
+    .flex-item:nth-child(1){
+        align-self: flex-start;
+    }
+
+    .flex-item:nth-child(2){
+        align-self: center;
+    }
+
+    .flex-item:nth-child(3){
+        align-self: center;
+    }
+    
+    .flex-item:nth-child(4){
+        align-self: last baseline;
+    }
+
+}
+
+
+.flex-item{
+    color: white;
+    background-color: brown;
+}
+
+.flex-item:nth-child(2n){
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
+
+
+
+
+

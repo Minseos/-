@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head> <!-- head와 body는 형제 관계-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fintech_service</title>
+    <link rel="stylesheet" href="../CSS/index.css">
+
+</head>
+
+<body>
+    <h1>안녕하세요</h1>
+    <a href="https://www.naver.com">네이버</a>
+    <!-- 부모 자식관계 -->
+
+    <!-- h 태그 h1~6- 순서대로 써야 함-->
+    <h1>h1 태크입니다.</h1>
+    <h2>h2 태크입니다.</h2>
+    <h3>h3 태크입니다.</h3>
+    <h4>h4 태크입니다.</h4>
+    <h5>h5 태크입니다.</h5>
+    <h6>h6 태크입니다.</h6>
+    
+    <!-- p 태그 문단 본문 작성시 사용 -->
+    <a href="https://www.naver.com">네이버</a> <!-- 인라인 태그 -->
+    <a href="https://www.naver.com">네이버</a> <!-- -->
+    <a href="https://www.naver.com">네이버</a>
+    <a href="https://www.naver.com">네이버</a>
+    <a href="https://www.naver.com">네이버</a>
+    <a href="https://www.naver.com">네이버</a>
+    <a href="https://www.naver.com">네이버</a>
+    <a href="https://www.naver.com">네이버</a>
+    <a href="https://www.naver.com">네이버</a>
+    <a href="https://www.naver.com">네이버</a>
+    <a href="https://www.naver.com">네이버</a>
+    <a href="https://www.naver.com">네이버</a>
+    <a href="https://www.naver.com">네이버</a>
+    <a href="https://www.naver.com">네이버</a>
+    <p>p 태그입니다. 문단을 작성할 때 사용합니다.</p>
+    <p>p 태그2입니다. 문단을 작성할 때 사용합니다.</p>
+
+    <!-- br 줄바꿈 태그 -->
+     <br>
+
+    <!-- 삭제 표시 del -->
+     <p>오늘만 대 할인 <del>50000</del> 30000</p>
+
+    <!-- 첨자 태그 sub(아래), sup(위) -->
+    <p>h<sup>2</sup></p>
+    <p>b<sub>2</sub></p>
+
+    <div>
+        <p>p 태그입니다. 문단을 작성할 때 사용합니다.</p>
+        <p>p 태그2입니다. 문단을 작성할 때 사용합니다.</p>
+    </div>
+    
+    <div class = "movie">
+        <p>영화 소개</p>
+        <p>영화를 소개하는 페이지입니다.</p>
+    </div>
+
+    <div class "tv">
+        <p>TV 프로그램 소개</p>
+        <p>TV 프로그램을 소개하는 페이지 입니다.</p>
+    </div>
+
+    <!-- span -->
+    <p>영화를 소개하는 <span style="color : red">페이지</span>입니다.</p>
+
+    <!-- 목록 태그 ol(ordered list), ul(unordered list), dl(description list)-->
+    <!-- ol, ul 안쪽에 들어가는 세부 항목li(list) -->
+    <h1>판매 중인 과일</h1>
+    <ol>
+        <li>바나나</li>
+        <li>사과</li>
+        <li>수박</li>
+    </ol>
+    <h1>판매 중인 과일</h1>
+    <ul>
+        <li>바나나</li>
+        <li>사과</li>
+        <li>수박</li>
+    </ul>
+    <dl>
+        <dt>판매 중인 과일</dt>
+        <dd>바나나</dd>
+        <dd>사과</dd>
+        <dd>수박</dd>
+    </dl>
+
+
+    <!-- 링크와 이미지 넣기 -->
+    <!-- 링크는 a 태그 href = "대상경로" target = "링크 연결 방식" title = "링크 설명" -->
+     <a href="#">주소를 모르는 링크</a>
+     <a href="http://www.naver.com" target="_blank">네이버 바로가기</a>
+     <br>
+     <a href="http://www.naver.com" target="_parent">네이버 바로가기_parent</a> <!-- 자기자신을 바꿔서 링크가 열림 -->
+     <br>
+     <a href="http://www.naver.com" target="_self">네이버 바로가기_self</a>
+     <br>
+     <a href="http://www.naver.com">네이버 바로가기 target 없음 - 현재창에 표시</a>
+     <br>
+     <a href="http://www.naver.com" target="_blank" title = "네이버로 가는 링크">네이버 바로가기</a>
+     <br>
+
+
+     <!-- 이미지 넣기 img -->
+    <img src = "..\다운로드.jfif" alt = "사진이 없거나 사진에 대한 설명이 필요할 때 작성">
+    <img src = "imges\다운로드.jfif" alt = "사진이 없거나 사진에 대한 설명이 필요할 때 작성">
+    
+    <a href="http://www.naver.com" target="_blank" title="고양이를 누르면 네이버로 가는 링크">
+        <img src = "..\다운로드.jfif" alt = "사진이 없거나 사진에 대한 설명이 필요할 때 작성">
+    </a>
+
+    <br>
+
+    <!-- 텍스트 강조 태그 storng, em(empasis) -->
+    <strong>중요한 의미가 있는 텍스트</strong>
+    <p>이 시설은 <strong>관계자 외 출입금지</strong>입니다.</p>
+    <p>이 시설은 <strong>관계자 외 <strong>출입금지</strong></strong>입니다.</p>
+
+    <!-- 글자 누워있기 -->
+    <em>강조하고 싶은 텍스트</em>
+    <p>이 시설은 <strong>관계자 외 <em>출입금지</em></strong>입니다.</p>
+
+    <!-- form 태그 사용자로부터 데이터를 입력받아 서버로 전송할 때 사용 -->
+     <!--form action = "서버 주소" method = "get/post" -->
+    <input type = "text" placeholder="text">
+    
+    <!-- input 태그 사용자로부터 데이터를 입력받는 태그 -->
+    <!-- input type = "", name = "이름" => 변수명, value = "초기값",
+     placeholder = "기본적으로 표시되는 값" -->
+
+     <p>텍스트 : <input type = "text" placeholder="text"></p>
+     <p>패스워드 : <input type = "password" placeholder="비밀번호를 입력하세요"></p>
+     <p>tel : <input type = "tel" placeholder="000-0000-0000"></p>
+     <p>number : <input type = "number" placeholder="숫자만 입력"></p>
+     <p>url : <input type = "url" placeholder="url입력"></p>
+     <p>radio : <input type = "radio" placeholder="라디오 버튼"></p>
+     <p>checkbox : <input type = "checkbox" placeholder="체크 박스"></p>
+     <p>submit : <input type = "submit" placeholder="submit 버튼"></p>
+     <p>month : <input type = "month"></p>
+
+    <form>
+        <fieldset>
+            <legend>기본 정보</legend>
+            <p>
+                <label for="userid">아이디</label>
+                <input type = "text" id ="userid">
+            </p>
+            <p>
+            <label for "passwd">비밀번호</label>
+            <input type = "password" id ="password">
+            </p>
+        </fieldset>
+        <fieldset>
+            <legend>선택정보</legend>
+            <p>
+                <label for = "age">나이</label>
+                <input type = "number" id = "age">
+            </p>
+            <p>
+                <label for = "recommender">추천인</label>
+                <input type = "text" id = "recommender">
+            </p>
+        </fieldset>
+    </form>
+
+       <!-- 텍스트를 여러 줄 입력해야 할 때 쓰는  textara -->
+       <form action="#" method="post">
+            <fieldset">
+                <legend><블로그 글쓰기></legend>
+                <p>
+                    <label for = "title">제목
+                        <input type="text" id = "title" name = "title">
+                    </label>
+                </p>
+                <p>
+                    <label for = "desc">내용
+                        <textarea id = "desc" name = "desc"></textarea>
+                    </label>
+                </p>
+            </fieldset>
+        </form>
+
+    <!-- select, option, optgroup -->
+    <!-- <select>
+        <optgroup label1 = "그룹 이름">
+            <option value = "서버에 전송할 값"> 웹 브라우저에 표시할 값</option>
+        </optgroup>
+     <select>  -->
+    
+    <select name = "city" id = "city">
+        <option value = "강북구">강북구</option>
+        <option value = "강남구">강남구</option>
+        <option value = "서초구">서초구</option>
+        <option value = "중원구">중원구</option>
+        <option value = "분당구">분당구</option>
+            
+    </select>
+
+    <select name = "city" id = "city">
+        <optgroup label="서울시">
+         <option value = "강북구">강북구</option>
+         <option value = "강남구">강남구</option>
+         <option value = "서초구">서초구</option>
+        </optgroup>
+        <optgroup label = "경기도 성남시">
+            <option value = "중원구">중원구</option>
+            <option value = "분당구">분당구</option>
+        </optgroup>   
+    </select>
+
+
+    <select name = "city" id = "city" size = "3">
+        <optgroup label="서울시">
+         <option value = "강북구">강북구</option>
+         <option value = "강남구">강남구</option>
+         <option value = "서초구">서초구</option>
+        </optgroup>
+        <optgroup label = "경기도 성남시">
+            <option value = "중원구">중원구</option>
+            <option value = "분당구">분당구</option>
+        </optgroup>   
+    </select>
+
+    <!-- 2개 이상 선택 가능하게 옵션주기 -->
+    <select name = "city" id = "city" size = "3" multiple>
+        <optgroup label="서울시">
+         <option value = "강북구">강북구</option>
+         <option value = "강남구">강남구</option>
+         <option value = "서초구">서초구</option>
+        </optgroup>
+        <optgroup label = "경기도 성남시">
+            <option value = "중원구">중원구</option>
+            <option value = "분당구">분당구</option>
+        </optgroup>   
+    </select>
+
+    <!-- select에서 기본값 주기 selected -->
+    <!-- 2개 이상 선택 가능하게 옵션주기 -->
+    <select name = "city" id = "city" size = "3" multiple>
+        <optgroup label="서울시">
+         <option value = "강북구">강북구</option>
+         <option value = "강남구">강남구</option>
+         <option value = "서초구">서초구</option>
+        </optgroup>
+        <optgroup label = "경기도 성남시">
+            <option value = "중원구">중원구</option>
+            <option value = "분당구">분당구</option>
+        </optgroup>   
+    </select>
+
+
+<!-- button 태그 -->
+<button type = "submit">제출하기</button>
+<br>
+<button type = "종류">버튼내용</button>
+
+<!-- maxlength = "숫자" input 태그에서 입력받는 길이 제한 -->
+<p>글자입력 : <input type = "text" maxlength="4"></p>
+
+
+<!-- check box에서 checked로 기본값 지정하기 -->
+<br>
+<fieldset>
+    <legend>좋아하는 과일</legend>
+    <input type="checkbox" id="banana" name="banana" value="banana">
+    <label for="banana">banana</label> <br>
+    <input type="checkbox" id="apple" name="apple" value="apple">
+    <label for="apple">apple</label> <br>
+    <input type="checkbox" id="orange" name="orange" value="orange">
+    <label for="orange">orange</label> <br>
+</fieldset>
+
+<fieldset>
+    <legend>좋아하는 과일</legend>
+    <input type="checkbox" id="banana" name="banana" value="banana">
+    <label for="banana">banana</label> <br>
+    <input type="checkbox" id="apple" name="apple" value="apple" checked>
+    <label for="apple">apple</label> <br>
+    <input type="checkbox" id="orange" name="orange" value="orange">
+    <label for="orange">orange</label> <br>
+</fieldset>
+
+<!-- 표 만들기 table 행(tr) 열(td) -->
+<!-- 행을 먼저 만들고 열을 만들어야됨 -->
+<br>
+<table border="1px">
+    <tr>
+        <td>표1, 1행, 1열</td>
+        <td>표1, 1행, 2열</td>
+    </tr>
+    <tr>
+        <td>2행, 1열</td>
+        <td>2행, 2열</td>
+    </tr>
+    <tr>
+        <td>3행, 1열</td>
+        <td>3행, 2열</td>
+    </tr>
+</table>
+
+<br>
+<br>
+
+<table border="1px">
+    <caption>표 제목</caption>
+    <tr>
+        <td>표1, 1행, 1열</td>
+        <td>표1, 1행, 2열</td>
+    </tr>
+    <tr>
+        <td>2행, 1열</td>
+        <td>2행, 2열</td>
+    </tr>
+    <tr>
+        <td>3행, 1열</td>
+        <td>3행, 2열</td>
+    </tr>
+</table>
+
+<br>
+<br>
+
+<table border="1px">
+    <caption>출석부</caption>
+    <tr>
+        <th>이름</th>
+        <th>번호</th>
+        
+    </tr>
+    <tr>
+        <td>홍길동</td>
+        <td>1</td>
+    </tr>
+    <tr>
+        <td>둘리</td>
+        <td>2</td>
+    </tr>
+</table>
+
+<br>
+<br>
+
+<table border="1px">
+    <caption>가격표</caption>
+    <tr>
+        <th>번호</th> <!--th열에서 제목을 만드는 태그-->
+        <th>상품명</th>
+        <th>수량</th>
+        <th>가격</th>
+        
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>콜라</td>
+        <td>1개</td>
+        <td>1,500원</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>사이다</td>
+        <td>2개</td>
+        <td>1,000원</td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td>탄산수</td>
+        <td>3개</td>
+        <td>1,000원</td>
+    </tr>
+</table>
+
+<!-- 테이블의 셀 병합하기 rowspan(행을 합침, 위아래를 하나로), 
+ colspan(열을 합침, 좌우를 하나로) -->
+
+ <br>
+ <br>
+ 
+ <table border="1px">
+     <caption>가격표</caption>
+     <tr>
+         <th>번호</th> <!--th열에서 제목을 만드는 태그-->
+         <th>상품명</th>
+         <th>수량</th>
+         <th>가격</th>
+         
+     </tr>
+     <tr>
+         <td>1</td>
+         <td>콜라</td>
+         <td>1개</td>
+         <td>1,500원</td>
+     </tr>
+     <tr>
+         <td>2</td>
+         <td>사이다</td>
+         <td>2개</td>
+         <td rowspan="2">1,000원</td>
+     </tr>
+     <tr>
+         <td>3</td>
+         <td>탄산수</td>
+         <td>3개</td>
+         <!-- <td>1,000원</td> -->
+     </tr>
+     <tr>
+        <td>총 금액</td>
+        <td colspan="3">6,500원</td>
+        <td>1</td>
+        <td>2
+     </tr>
+ </table>
+
+ <!-- thead, tfoot, tbody 시맨틱 태그 -->
+ <br>
+ <br>
+ 
+ <table border="1px">
+     <caption>가격표</caption>
+     <thead>
+        <tr>
+            <th>번호</th> <!--th열에서 제목을 만드는 태그-->
+            <th>상품명</th>
+            <th>수량</th>
+            <th>가격</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td>콜라</td>
+            <td>1개</td>
+            <td>1,500원</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>사이다</td>
+            <td>2개</td>
+            <td rowspan="2">1,000원</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>탄산수</td>
+            <td>3개</td>
+            <!-- <td>1,000원</td> -->
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>총 금액</td>
+            <td colspan="3">6,500원</td>
+            <td>1</td>
+            <td>2
+        </tr> 
+    </tfoot>
+ </table>
+
+<!-- col과 colgroup 열 전체를 그룹화해서 통일된 스타일을 적용하는 목적 -->
+<br>
+<br>
+
+<table border="1px">
+    <caption>가격표 colgroup</caption>
+    <thead>
+        <col style="width:80px">
+        <colgroup span ="2" style="width: 150px;"></colgroup>
+        <col style="width: 100px;">
+       <tr>
+           <th>번호</th> <!--th열에서 제목을 만드는 태그-->
+           <th>상품명</th>
+           <th>수량</th>
+           <th>가격</th>
+       </tr>
+   </thead>
+   <tbody>
+       <tr>
+           <td>1</td>
+           <td>콜라</td>
+           <td>1개</td>
+           <td>1,500원</td>
+       </tr>
+       <tr>
+           <td>2</td>
+           <td>사이다</td>
+           <td>2개</td>
+           <td rowspan="2">1,000원</td>
+       </tr>
+       <tr>
+           <td>3</td>
+           <td>탄산수</td>
+           <td>3개</td>
+           <!-- <td>1,000원</td> -->
+       </tr>
+   </tbody>
+   <tfoot>
+       <tr>
+           <td>총 금액</td>
+           <td colspan="3">6,500원</td>
+           <td>1</td>
+           <td>2
+       </tr> 
+   </tfoot>
+</table>
+
+
+<!-- 태그 종류에 상관없이 사용하는 글로벌 속성 -->
+<!-- class 묶음 -->
+<!-- id 유일한 값 -->
+<!-- style 해당 태그에만 css -->
+<p class="title" id = "bookname">책 제목</p>
+<p class = "title" >제목1</p>
+<p class ="odd" style="color: aqua; text-align: center;">내용1 Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla obcaecati iusto, blanditiis aspernatur impedit fuga maxime distinctio facilis ea quidem accusantium numquam expedita odit, eos commodi corrupti dicta, vel et.</p>
+<p class = "title" >제목2</p>
+<p class="even">내용2 Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla obcaecati iusto, blanditiis aspernatur impedit fuga maxime distinctio facilis ea quidem accusantium numquam expedita odit, eos commodi corrupti dicta, vel et.</p>
+<p class = "title"  >제목3</p>
+<p class="odd">내용3 Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla obcaecati iusto, blanditiis aspernatur impedit fuga maxime distinctio facilis ea quidem accusantium numquam expedita odit, eos commodi corrupti dicta, vel et.</p>
+<p class = "title" >제목4</p>
+<p class="even">내용4 Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla obcaecati iusto, blanditiis aspernatur impedit fuga maxime distinctio facilis ea quidem accusantium numquam expedita odit, eos commodi corrupti dicta, vel et.</p>
+<p class = "title"  >제목5</p>
+<p class="odd">내용5 Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla obcaecati iusto, blanditiis aspernatur impedit fuga maxime distinctio facilis ea quidem accusantium numquam expedita odit, eos commodi corrupti dicta, vel et.</p>
+<p class = "title" >제목6</p>
+<p class="even">내용6 Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla obcaecati iusto, blanditiis aspernatur impedit fuga maxime distinctio facilis ea quidem accusantium numquam expedita odit, eos commodi corrupti dicta, vel et.</p>
+<p class = "title"  >제목7</p>
+<p class="odd">내용7 Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla obcaecati iusto, blanditiis aspernatur impedit fuga maxime distinctio facilis ea quidem accusantium numquam expedita odit, eos commodi corrupti dicta, vel et.</p>
+<p class = "title" >제목8</p>
+<p class="even">내용8 Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla obcaecati iusto, blanditiis aspernatur impedit fuga maxime distinctio facilis ea quidem accusantium numquam expedita odit, eos commodi corrupti dicta, vel et.</p>
+
+
+
+
+
+
+
+</body>
+
+</html>
