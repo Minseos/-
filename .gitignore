@@ -37,3 +37,6 @@ C:/fintech_service/project
 /project
 C:/fintech_service/09_time_series/data
 *.csv
+
+C:/fintech_service/09_time_series/AutogluonModels
+09_time_series/AutoGluonModels/
