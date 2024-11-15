@@ -1,0 +1,184 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+import pandas as pd
+import time
+
+# ChromeDriver 옵션 설정
+options = webdriver.ChromeOptions()
+options.add_argument("--disable-gpu")
+options.add_argument("--window-size=2560,1440")
+options.add_experimental_option("excludeSwitches", ["enable-logging", "enable-automation"])
+options.add_argument("--disable-blink-features=AutomationControlled")
+
+# ChromeDriver 초기화
+driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+
+# 네이버 지도 페이지로 이동
+driver.get('https://map.naver.com/p/entry/place/33964233?c=15.00,0,0,0,dh&placePath=/home')
+
+# 페이지 로드 대기
+WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "entryIframe")))
+
+try:
+    # entryIframe이 로드될 때까지 대기 후 전환
+    WebDriverWait(driver, 10).until(EC.frame_to_be_available_and_switch_to_it((By.ID, "entryIframe")))
+
+    # 가게 이름 검색
+    store_name_element = WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.XPATH, "//*[@id='_title']/div/span[1]"))
+    )
+    store_name = store_name_element.text
+
+    # 업종 카테고리 검색
+    category_element = WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.XPATH, "//*[@id='_title']/div/span[2]"))
+    )
+    category = category_element.text
+
+    # 별점 검색 (없으면 "없음" 출력)
+    try:
+        rating_element = WebDriverWait(driver, 15).until(
+            EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div/div/div/div[2]/div[1]/div[2]/span[1]"))
+        )
+        rating_text = rating_element.text
+        rating = rating_text.replace("별점", "").strip()
+    except (NoSuchElementException, TimeoutException):
+        rating = "없음"
+
+    # 방문자 리뷰 검색 (없으면 "없음" 출력)
+    try:
+        visitor_review_element = WebDriverWait(driver, 15).until(
+            EC.presence_of_element_located((By.XPATH, "//*[@id='app-root']/div/div/div/div[2]/div[1]/div[2]/span[2]/a"))
+        )
+        visitor_review = visitor_review_element.text.split("리뷰")[1].strip()
+    except (NoSuchElementException, TimeoutException):
+        visitor_review = "없음"
+
+    # 블로그 리뷰 검색 (없으면 "없음" 출력)
+    try:
+        blog_review_element = WebDriverWait(driver, 15).until(
+            EC.presence_of_element_located((By.XPATH, "//*[@id='app-root']/div/div/div/div[2]/div[1]/div[2]/span[3]/a"))
+        )
+        blog_review = blog_review_element.text.split("리뷰")[1].strip()
+    except (NoSuchElementException, TimeoutException):
+        blog_review = "없음"
+
+    # 결과 출력
+    print("가게 이름:", store_name)
+    print("업종 카테고리:", category)
+    print("별점:", rating)
+    print("방문자 리뷰:", visitor_review)
+    print("블로그 리뷰:", blog_review)
+
+    # '리뷰' 탭 클릭하기
+    review_tab_element = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.XPATH, "//span[text()='리뷰']"))
+    )
+    review_tab_element.click()
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="app-root"]/div/div/div/div[6]/div[3]/div[3]/h2/div[1]/em'))
+    )
+    print("리뷰 탭 클릭 완료")
+
+    # 리뷰 총 개수 가져오기
+    review_count_element = WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="app-root"]/div/div/div/div[6]/div[3]/div[3]/h2/div[1]/em'))
+    )
+    total_reviews = int(review_count_element.text.replace(',', ''))
+    print("총 리뷰 수:", total_reviews)
+    print('\n')
+
+    reviews = []
+    review_text_set = set()
+    retry_count = 0
+    max_retries = 3
+
+    # '더보기' 버튼이 없어질 때까지 리뷰 수집
+    while len(reviews) < total_reviews and retry_count < max_retries:
+        review_elements = driver.find_elements(By.XPATH, '//*[@id="app-root"]/div/div/div/div[6]/div[3]/div[3]/div/ul/li')
+        loaded_review_count = len(review_elements)
+        print(f"로드된 리뷰 개수: {loaded_review_count}, 수집된 리뷰 개수: {len(reviews)}")
+
+        if loaded_review_count > len(reviews):
+            retry_count = 0  # 새로운 리뷰가 로드되면 리트라이 카운트 초기화
+            for review_element in review_elements[len(reviews):]:
+                try:
+                    # 작성자 이름
+                    try:
+                        author_name = review_element.find_element(By.XPATH, './/div[1]/a[2]/div[1]/span/span').text.strip()
+                    except NoSuchElementException:
+                        author_name = "Unknown"
+
+                    # 리뷰 개수
+                    try:
+                        review_count_text = review_element.find_element(By.XPATH, './/div[1]/a[2]/div[2]/span[2]').text.strip()
+                    except NoSuchElementException:
+                        review_count_text = "Unknown"
+
+                    # 리뷰 내용과 날짜
+                    try:
+                        review_text = review_element.find_element(By.XPATH, './/div[5]/a[1]').text.strip()
+                        review_date = review_element.find_element(By.XPATH, './/div[7]/div[2]/div/span[1]/span[2]').text.strip()
+                    except NoSuchElementException:
+                        try:
+                            review_text = review_element.find_element(By.XPATH, './/div[4]/a').text.strip()
+                            review_date = review_element.find_element(By.XPATH, './/div[6]/div[2]/div/span[1]/span[2]').text.strip()
+                        except NoSuchElementException:
+                            try:
+                                review_text = review_element.find_element(By.XPATH, './/div[6]/a').text.strip()
+                                review_date = review_element.find_element(By.XPATH, './/div[8]/div[2]/div/span[1]/span[2]').text.strip()
+                            except NoSuchElementException:
+                                review_text = "내용 없음"
+                                review_date = "날짜 없음"
+
+                    # 중복 방지 및 저장
+                    review_key = (author_name, review_text, review_date, review_count_text)
+                    if review_key not in review_text_set:
+                        reviews.append((review_date, review_text))
+                        review_text_set.add(review_key)
+                        print(f"리뷰 {len(reviews)}: {review_text} ({review_date}) - 작성자: {author_name} ({review_count_text})")
+
+                    if len(reviews) >= total_reviews:
+                        break
+                except NoSuchElementException:
+                    continue
+        else:
+            retry_count += 1
+            print("새로운 리뷰가 로드되지 않아 스크롤을 조정하고 재시도합니다...", f"(재시도 {retry_count}/{max_retries})")
+            driver.execute_script("window.scrollTo(0, 0);")
+            time.sleep(1)
+            for scroll_pos in range(500, 8000, 500):
+                driver.execute_script(f"window.scrollTo(0, {scroll_pos});")
+                time.sleep(1)
+
+        # '더보기' 버튼 클릭
+        try:
+            bottom_more_button = WebDriverWait(driver, 5).until(
+                EC.element_to_be_clickable((By.XPATH, '//*[@id="app-root"]/div/div/div/div[6]/div[3]/div[3]/div[2]/div/a'))
+            )
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", bottom_more_button)
+            driver.execute_script("arguments[0].click();", bottom_more_button)
+            time.sleep(3)
+        except (NoSuchElementException, TimeoutException):
+            print("'더보기' 버튼이 더 이상 없습니다.")
+            break
+
+    print(f"총 {len(reviews)}개의 리뷰를 수집했습니다. (예상 총 리뷰 수: {total_reviews})")
+
+except Exception as e:
+    print(f"오류 발생: {e}")
+
+# 수집한 리뷰를 CSV 파일로 저장
+if reviews:
+    reviews_df = pd.DataFrame(reviews, columns=['Date', 'Review'])
+    reviews_df.index = range(1, len(reviews) + 1)
+    csv_filename = f"{store_name}_reviews.csv"
+    reviews_df.to_csv(csv_filename, index_label="Index", encoding='utf-8-sig')
+    print(f"리뷰 데이터가 '{csv_filename}' 파일로 저장되었습니다.")
+else:
+    print("수집된 리뷰가 없습니다.")
