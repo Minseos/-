@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ place_name }} 리뷰</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .review {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 0;
+        }
+        .review:last-child {
+            border-bottom: none;
+        }
+        .review-date {
+            color: #888;
+            font-size: 14px;
+        }
+        .review-text {
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 5px 0 0 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ place_name }} 리뷰</h1>
+        {% for review in reviews %}
+        <div class="review">
+            <div class="review-date">{{ review.date }}</div>
+            <div class="review-text">{{ review.review }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
