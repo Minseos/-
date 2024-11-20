@@ -77,7 +77,7 @@
             "서초남순남순대국 본점", "브라운돈까스 뱅뱅사거리점", "고품격커피공장 뱅뱅사거리점", "두두돼지불백", "사천루",
             "장수촌풍천장어",
             "뱅뱅막국수 역삼본점", "커피박스", "뚜레쥬르 뱅뱅사거리점", "멜론", "오아시스", "에이림커피", "카페S", "원할매이모네닭한마리",
-            "20년전통영이네떡볶이", "영이네추억의떡볶이", "비채", "한강수", "고래똥", "두메 도곡점", "썸",
+            "영이네추억의떡볶이", "비채", "한강수", "고래똥", "두메 도곡점", "썸",
             "샵5827 에스프레소",
             "메종보탄"
         ];
@@ -102,10 +102,11 @@
                         clusterer.addMarker(marker);
 
                         kakao.maps.event.addListener(marker, "click", function () {
-                            // 마커 클릭 시 새 창에서 리뷰 보기
+                            // 새 창 열기 설정
                             var reviewUrl = apiUrl + encodeURIComponent(place); // 서버 API URL
-                            window.open(reviewUrl, '_blank', 'width=800,height=600,scrollbars=yes'); // 새 창 열기
+                            window.open(reviewUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes'); // 새 창 열기
                         });
+                        
                     }
                 } else {
                     console.error("장소 검색 실패: " + place);
