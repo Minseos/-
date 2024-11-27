@@ -1,4 +1,6 @@
+import os
 import pymysql
+import pandas as pd
 import re
 from dbenv import id, pw, host, database  # MySQL 연결 정보 가져오기
 
@@ -11,8 +13,8 @@ db_config = {
     "database": database
 }
 
-# 가게 리스트
-store_list = [
+# DB에 존재하는 테이블 리스트
+table_list = [
     "스노우폭스_뱅뱅점", "맥도날드_서초뱅뱅점", "큐뮬러스", "유니마카롱", "짜짜루",
     "아티제_강남유니온센터점", "어가람", "드시옹", "웰니스_쌀빵", "파리바게뜨_뱅뱅사거리점",
     "파라노이드_강남뱅뱅_카페", "아티제_뱅뱅사거리점", "만복회해산물_뱅뱅사거리점", "해머스미스커피_뱅뱅사거리점",
@@ -34,51 +36,67 @@ store_list = [
     "오하나_도곡점"
 ]
 
-# MySQL 연결 및 테이블 생성
-def create_tables():
+# 카카오 리뷰 데이터 폴더 경로
+data_folder = r"C:\fintech_service\final_project\data\리뷰추출\카카오최종"
+
+
+# 테이블 이름 전처리 함수
+def preprocess_table_name(name):
+    return re.sub(r"[^\w]", "_", name.strip()).lower()
+
+# 매칭 함수 (부분 매칭 + 예외 처리)
+def find_matching_store(store_name_guess):
+    processed_guess = preprocess_table_name(store_name_guess)
+    for table in table_list:
+        processed_table = preprocess_table_name(table)
+        if processed_guess in processed_table or processed_table in processed_guess:
+            return table
+    return None
+
+# MySQL 연결 및 데이터 삽입
+def insert_kakao_reviews(folder_path):
     connection = pymysql.connect(**db_config)
 
     try:
         with connection.cursor() as cursor:
-            # 1. stores 테이블 생성
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS stores (
-                    store_id INT AUTO_INCREMENT PRIMARY KEY,
-                    store_name VARCHAR(255) NOT NULL,
-                    address VARCHAR(255) NOT NULL,
-                    category VARCHAR(100),
-                    phone_number VARCHAR(20),
-                    business_hours VARCHAR(255),
-                    price_range VARCHAR(50),
-                    naver_rating DECIMAL(2, 1) DEFAULT NULL,
-                    kakao_rating DECIMAL(2, 1) DEFAULT NULL,
-                    google_rating DECIMAL(2, 1) DEFAULT NULL
-                );
-            """)
-            print("stores 테이블 생성 완료")
+            for filename in os.listdir(folder_path):
+                if filename.endswith(".csv"):
+                    file_path = os.path.join(folder_path, filename)
+                    store_name_guess = os.path.splitext(filename)[0].replace("_카카오", "").replace("_reviews", "").strip()
+                    matched_table = find_matching_store(store_name_guess)
 
-            # 2. reviews 테이블 생성
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS reviews (
-                    review_id INT AUTO_INCREMENT PRIMARY KEY,
-                    store_id INT NOT NULL,
-                    platform VARCHAR(50) NOT NULL,
-                    review_date DATE NOT NULL,
-                    review_text TEXT NOT NULL,
-                    final_sentiment ENUM('긍정적', '부정적', '알 수 없음') NOT NULL,
-                    taste ENUM('긍정적', '부정적', '알 수 없음') NOT NULL,
-                    service ENUM('긍정적', '부정적', '알 수 없음') NOT NULL,
-                    quantity ENUM('긍정적', '부정적', '알 수 없음') NOT NULL,
-                    sentiment ENUM('긍정적', '부정적', '알 수 없음') NOT NULL,
-                    sentiment2 ENUM('긍정적', '부정적', '알 수 없음') NOT NULL,
-                    FOREIGN KEY (store_id) REFERENCES stores(store_id) ON DELETE CASCADE
-                );
-            """)
-            print("reviews 테이블 생성 완료")
+                    if not matched_table:
+                        print(f"가게 이름을 매칭할 수 없습니다: {store_name_guess}")
+                        continue
 
-            # 변경 사항 저장
+                    table_name = preprocess_table_name(matched_table)
+
+                    # CSV 파일 로드
+                    data = pd.read_csv(file_path)
+                    data.dropna(inplace=True)  # 모든 결측값 제거
+
+                    # 컬럼 이름 동적 생성
+                    columns = data.columns.tolist()
+                    placeholders = ", ".join(["%s"] * len(columns))
+                    column_names = ", ".join([f"`{col}`" for col in columns])
+
+                    # 테이블에 존재하는 컬럼 확인
+                    cursor.execute(f"DESCRIBE `{table_name}`")
+                    existing_columns = set(row[0] for row in cursor.fetchall())
+
+                    # 데이터 삽입 가능한 컬럼 필터링
+                    valid_columns = [col for col in columns if col in existing_columns]
+                    placeholders = ", ".join(["%s"] * len(valid_columns))
+                    column_names = ", ".join([f"`{col}`" for col in valid_columns])
+
+                    for _, row in data.iterrows():
+                        sql = f"INSERT INTO `{table_name}` ({column_names}) VALUES ({placeholders})"
+                        cursor.execute(sql, tuple(row[valid_columns]))
+
+                    print(f"{filename} 데이터를 {table_name} 테이블에 성공적으로 삽입했습니다!")
+
             connection.commit()
-            print("테이블 생성이 성공적으로 완료되었습니다!")
+            print("카카오 데이터를 성공적으로 삽입했습니다!")
 
     except Exception as e:
         print(f"에러 발생: {e}")
@@ -87,4 +105,4 @@ def create_tables():
 
 # 실행
 if __name__ == "__main__":
-    create_tables()
+    insert_kakao_reviews(data_folder)
