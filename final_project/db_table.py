@@ -50,9 +50,9 @@ def create_tables():
                     phone_number VARCHAR(20),
                     business_hours VARCHAR(255),
                     price_range VARCHAR(50),
-                    naver_rating DECIMAL(2, 1) DEFAULT NULL,
-                    kakao_rating DECIMAL(2, 1) DEFAULT NULL,
-                    google_rating DECIMAL(2, 1) DEFAULT NULL
+                    naver_rating FLOAT DEFAULT NULL,
+                    kakao_rating FLOAT DEFAULT NULL,
+                    google_rating FLOAT DEFAULT NULL
                 );
             """)
             print("stores 테이블 생성 완료")

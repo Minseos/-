@@ -15,7 +15,8 @@ db_config = {
     "port": int(host.split(":")[1]) if ":" in host else 3306,
     "user": id,
     "password": pw,
-    "database": database
+    "database": database,
+    "charset": "utf8mb4"  # UTF-8 인코딩 설정
 }
 
 # Flask와 Kakao 지도 매핑용 데이터
@@ -118,56 +119,62 @@ tableMapping = {
     "썸": "썸",
     "샵5827 에스프레소": "샵5827_에스프레소",
     "메종보탄": "메종보탄",
+    "오하나 도곡점" : "오하나_도곡점"
 }
 
 
-# def calculate_average_rating(reviews):
-#     """평균 평점을 계산하는 함수"""
-#     if not reviews:
-#         return "N/A"
-#     ratings = [review['rating'] for review in reviews if 'rating' in review and review['rating'] is not None]
-#     return round(sum(ratings) / len(ratings), 1)
+@app.route('/stores', methods=['GET'])
+def get_stores():
+    """
+    데이터베이스에서 모든 가게 정보를 가져와 JSON으로 반환
+    """
+    connection = pymysql.connect(**db_config)
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute("SELECT store_name, address FROM stores")
+            stores = cursor.fetchall()
+        return jsonify(stores)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        connection.close()
+
 
 @app.route('/reviews/<place_name>', methods=['GET'])
 def get_reviews(place_name):
-    # 장소 이름에 해당하는 테이블 이름 찾기
+    """
+    특정 가게의 리뷰를 데이터베이스에서 가져와 HTML로 렌더링
+    """
+    # 매핑된 테이블 이름 가져오기
     table_name = tableMapping.get(place_name)
     if not table_name:
         return jsonify({"error": f"No mapping found for {place_name}"}), 400
 
+    # 데이터베이스 연결
     connection = pymysql.connect(**db_config)
     try:
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-            # 네이버 리뷰 가져오기
-            cursor.execute(f"SELECT * FROM `{table_name}` WHERE platform = '네이버'")
-            naver_reviews = cursor.fetchall()
-            # naver_rating = calculate_average_rating(naver_reviews)
+            platforms = ['네이버', '카카오', '구글']
+            reviews = {}
+            for platform in platforms:
+                cursor.execute(f"SELECT * FROM {table_name} WHERE platform = %s", (platform,))
+                reviews[platform] = cursor.fetchall()
 
-            # 카카오 리뷰 가져오기
-            cursor.execute(f"SELECT * FROM `{table_name}` WHERE platform = '카카오'")
-            kakao_reviews = cursor.fetchall()
-            # kakao_rating = calculate_average_rating(kakao_reviews)
-
-            # 구글 리뷰 가져오기
-            cursor.execute(f"SELECT * FROM `{table_name}` WHERE platform = '구글'")
-            google_reviews = cursor.fetchall()
-            # google_rating = calculate_average_rating(google_reviews)
-
-        # 플랫폼별 리뷰 데이터를 템플릿으로 전달
-        return render_template(
-            'reviews.html',
-            place_name=place_name,
-            naver_reviews=naver_reviews,
-            kakao_reviews=kakao_reviews,
-            google_reviews=google_reviews,
-            # naver_rating=naver_rating,
-            # kakao_rating=kakao_rating,
-            # google_rating=google_rating
-        )
+        # HTML 템플릿 렌더링
+        return render_template('reviews.html', place_name=place_name, reviews=reviews)
     except pymysql.err.ProgrammingError as e:
-        return jsonify({"error": f"Table {table_name} does not exist: {str(e)}"}), 400
+        return jsonify({"error": f"Table access error for {table_name}: {str(e)}"}), 400
     finally:
         connection.close()
+
+
+@app.route('/map', methods=['GET'])
+def render_map():
+    """
+    Kakao 지도 HTML 파일 렌더링
+    """
+    return render_template('kakaoAPI_test.html')  # HTML 파일 이름
+
 
 if __name__ == '__main__':
     app.run(debug=True)

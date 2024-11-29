@@ -13,7 +13,7 @@ db_config = {
 }
 
 # CSV 파일 경로 설정
-csv_dir = r'C:\fintech_service\final_project\data\리뷰추출\카카오최종'
+csv_dir = r'C:\fintech_service\final_project\data\리뷰추출\네이버최종'
 
 # 데이터베이스 테이블 명
 table_name = 'reviews'
@@ -75,7 +75,7 @@ def insert_kakao_reviews():
             rows_to_insert = [
                 (
                     store_id,
-                    "카카오",
+                    "네이버",
                     convert_date(row['Date']),
                     row['Review'],
                     row['Final_Sentiment'],
@@ -90,7 +90,7 @@ def insert_kakao_reviews():
             cursor.executemany(insert_query, rows_to_insert)
             connection.commit()
 
-        print("모든 카카오 리뷰 데이터가 데이터베이스에 삽입되었습니다.")
+        print("모든 네이버 리뷰 데이터가 데이터베이스에 삽입되었습니다.")
 
     except Exception as e:
         print(f"오류 발생: {e}")

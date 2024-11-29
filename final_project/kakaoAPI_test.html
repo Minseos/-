@@ -2,120 +2,54 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Kakao 지도 - 반경 표시</title>
+    <title>Kakao 지도 - 가게 마커 표시</title>
 </head>
 <body>
     <div id="map" style="width:100%; height:90vh;"></div>
 
-    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=6faf87cb97db068169856747cd9a6cf6&libraries=services,clusterer"></script>
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=63e3067448f3fd1670dd681def99e897&libraries=services"></script>
     <script>
-        // 지도 생성
+        // Kakao 지도 초기화
         var mapContainer = document.getElementById('map');
         var mapOption = {
             center: new kakao.maps.LatLng(37.489680, 127.032901), // 초기 중심 좌표
             level: 3 // 확대 레벨
         };
-
         var map = new kakao.maps.Map(mapContainer, mapOption);
 
-        // 내 위치
-        var myLocation = new kakao.maps.LatLng(37.489680, 127.032901);
+        // Kakao API 지오코더 객체 생성
+        var geocoder = new kakao.maps.services.Geocoder();
 
-        // 반경 200m 원 표시
-        var circle = new kakao.maps.Circle({
-            center: myLocation, // 원의 중심 좌표
-            radius: 200, // 반경 (미터 단위)
-            strokeWeight: 2, // 선의 두께
-            strokeColor: '#ff0000', // 선의 색상 '#ff0000' 파란색 : '#3498db'
-            strokeOpacity: 0.8, // 선의 투명도
-            strokeStyle: 'solid', // 선의 스타일
-            fillColor: '#ffcccc', // 채우기 색상 '#ffcccc 파란색 : '#a9d8f3'
-            fillOpacity: 0.5 // 채우기 투명도
-        });
-
-        circle.setMap(map); // 지도에 원 추가
-
-        // 내 위치를 표시하는 커스텀 마커
-        var myLocationMarkerImage = new kakao.maps.MarkerImage(
-            "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png", // 커스텀 아이콘 이미지
-            new kakao.maps.Size(24, 35), // 아이콘 크기
-            { offset: new kakao.maps.Point(12, 35) } // 중심점
-        );
-
-        var myLocationMarker = new kakao.maps.Marker({
-            position: myLocation, // 내 위치
-            image: myLocationMarkerImage, // 커스텀 이미지 설정
-            title: "현재 위치" // 마커 툴팁
-        });
-
-        myLocationMarker.setMap(map); // 지도에 내 위치 마커 추가
-
-        // 반경 내 장소 표시를 위해 클러스터러 추가
-        var clusterer = new kakao.maps.MarkerClusterer({
-            map: map,
-            averageCenter: true,
-            minLevel: 7
-        });
-
-        var apiUrl = "http://127.0.0.1:5000/reviews/"; // Flask 서버 URL
-        var ps = new kakao.maps.services.Places();
-
-        // 장소 배열
-        var places = [
-            "스노우폭스 뱅뱅점", "맥도날드 서초뱅뱅점", "큐뮬러스", "유니마카롱", "짜짜루", "아티제 강남유니온센터점",
-            "어가람", "드시옹", "웰니스 쌀빵", "파리바게뜨 뱅뱅사거리점", "파라노이드 강남뱅뱅 카페", "아티제 뱅뱅사거리점",
-            "만복회해산물 뱅뱅사거리점", "해머스미스커피 뱅뱅사거리점", "월참치", "쿡쿡쿡 뱅뱅사거리점", "파스타엔포크 강남역삼점",
-            "고가네철판불백", "곰작골나주곰탕 역삼초교점", "사람사는고깃집김일도 뱅뱅점", "잇풀키토김밥 샌드위치 샐러드 강남점",
-            "엄마손맛집밥세로방", "고불초쌈밥 2호점", "우심터", "난타5000", "봉구스밥버거 역삼삼일점", "세로방", "커피콩스토리", "더에이치",
-            "9CAFE", "소뭉집 본점", "리첸", "지우네", "중화카츠", "교토일식", "회춘식당", "노브랜드버거 뱅뱅사거리점", "라망드쉐프", "서초골",
-            "에슬로우커피 뱅뱅사거리점", "전주피순대",
-            "오로스트커피", "다슬음", "조순금닭도리탕", "궁민김밥", "더벤티 뱅뱅사거리점",
-            "돼지벅스", "시원한대구탕", "판문점부대찌개 역삼점", "청담배짱이", "통돼지 두루치기김치찌개", "봉평착한메밀", "칸꼬시",
-            "곰바로곰탕", "문화시민", "오늘은 어떤닭", "카페블랑131", "버드나무집 서초본점", "파스쿠찌 뱅뱅사거리점", "남강매점",
-            "스타벅스 서초태우빌딩점", "맥켄치킨", "봉피양 양재점", "깡돈", "북경반점", "무화잠 강남점", "아워948", "참족", "예당", "다돈식당",
-            "낙여삼", "명동할머니국수 뱅뱅사거리점", "이천쌀밥", "또봉이통닭 도곡점", "카린지린가네스낵바 뱅뱅사거리점", "왕산골",
-            "서초남순남순대국 본점", "브라운돈까스 뱅뱅사거리점", "고품격커피공장 뱅뱅사거리점", "두두돼지불백", "사천루",
-            "장수촌풍천장어",
-            "뱅뱅막국수 역삼본점", "커피박스", "뚜레쥬르 뱅뱅사거리점", "멜론", "오아시스", "에이림커피", "카페S", "원할매이모네닭한마리",
-            "영이네추억의떡볶이", "비채", "한강수", "고래똥", "두메 도곡점", "썸",
-            "샵5827 에스프레소",
-            "메종보탄"
+        // 서버에서 가져올 데이터 (임시로 하드코딩)
+        var stores = [
+            { "store_name": "스노우폭스 뱅뱅점", "address": "서울특별시 강남구 역삼로 123" },
+            { "store_name": "맥도날드 서초뱅뱅점", "address": "서울특별시 서초구 서초대로 456" },
+            { "store_name": "큐뮬러스", "address": "서울특별시 강남구 테헤란로 789" }
         ];
 
-        // 반경 내 장소만 필터링하는 함수
-        function isWithinRadius(lat, lng, radius) {
-            var distance = Math.sqrt(
-                Math.pow(lat - myLocation.getLat(), 2) + Math.pow(lng - myLocation.getLng(), 2)
-            ) * 111320; // 위도와 경도 차이를 미터로 변환
-            return distance <= radius;
-        }
-
-        // 장소 검색 및 마커 추가
-        function addMarker(place) {
-            ps.keywordSearch(place, function (result, status) {
+        // 마커 생성 함수
+        stores.forEach(store => {
+            geocoder.addressSearch(store.address, function(result, status) {
                 if (status === kakao.maps.services.Status.OK) {
                     var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
 
-                    // 반경 내인지 확인
-                    if (isWithinRadius(coords.getLat(), coords.getLng(), 200)) {
-                        var marker = new kakao.maps.Marker({ position: coords, title: place });
-                        clusterer.addMarker(marker);
+                    // 마커 추가
+                    var marker = new kakao.maps.Marker({
+                        map: map,
+                        position: coords,
+                        title: store.store_name
+                    });
 
-                        kakao.maps.event.addListener(marker, "click", function () {
-                            // 새 창 열기 설정
-                            var reviewUrl = apiUrl + encodeURIComponent(place); // 서버 API URL
-                            window.open(reviewUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes'); // 새 창 열기
-                        });
-                        
-                    }
+                    // 마커 클릭 이벤트
+                    kakao.maps.event.addListener(marker, 'click', function() {
+                        alert(`가게 이름: ${store.store_name}\n주소: ${store.address}`);
+                        // 여기에서 원하는 동작 추가 가능 (예: 새 창 열기)
+                    });
                 } else {
-                    console.error("장소 검색 실패: " + place);
+                    console.error(`주소 변환 실패: ${store.address}`);
                 }
             });
-        }
-
-        // 장소 배열 반복 및 마커 추가
-        places.forEach(addMarker);
+        });
     </script>
 </body>
 </html>
