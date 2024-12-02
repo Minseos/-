@@ -1,13 +1,10 @@
-from flask import Flask, jsonify, Response, render_template
-import pymysql
-from dbenv import id, pw, host, database
-import re
-import json
-from flask_cors import CORS  # CORS 라이브러리 추가
+from flask import Flask, jsonify, request, render_template
+import mysql.connector
+from flask_cors import CORS
+from dbenv import id, pw, host, database  # MySQL 연결 정보 가져오기
 
-# app = Flask(__name__, static_url_path='/static', static_folder='static')
-app = Flask(__name__, static_url_path='', static_folder='.')  # Flask 앱 초기화
-CORS(app)  # CORS 허용 설정
+app = Flask(__name__)
+CORS(app)
 
 # MySQL 연결 정보
 db_config = {
@@ -15,166 +12,82 @@ db_config = {
     "port": int(host.split(":")[1]) if ":" in host else 3306,
     "user": id,
     "password": pw,
-    "database": database,
-    "charset": "utf8mb4"  # UTF-8 인코딩 설정
+    "database": database
 }
 
-# Flask와 Kakao 지도 매핑용 데이터
-tableMapping = {
-    "스노우폭스 뱅뱅점": "스노우폭스_뱅뱅점",
-    "맥도날드 서초뱅뱅점": "맥도날드_서초뱅뱅점",
-    "큐뮬러스": "큐뮬러스",
-    "유니마카롱": "유니마카롱",
-    "짜짜루": "짜짜루",
-    "아티제 강남유니온센터점": "아티제_강남유니온센터점",
-    "어가람": "어가람",
-    "드시옹": "드시옹",
-    "웰니스 쌀빵": "웰니스_쌀빵",
-    "파리바게뜨 뱅뱅사거리점": "파리바게뜨_뱅뱅사거리점",
-    "파라노이드 강남뱅뱅 카페": "파라노이드_강남뱅뱅_카페",
-    "아티제 뱅뱅사거리점": "아티제_뱅뱅사거리점",
-    "만복회해산물 뱅뱅사거리점": "만복회해산물_뱅뱅사거리점",
-    "해머스미스커피 뱅뱅사거리점": "해머스미스커피_뱅뱅사거리점",
-    "월참치": "월참치",
-    "쿡쿡쿡 뱅뱅사거리점": "쿡쿡쿡_뱅뱅사거리점",
-    "파스타엔포크 강남역삼점": "파스타엔포크_강남역삼점",
-    "고가네철판불백": "고가네철판불백",
-    "곰작골나주곰탕 역삼초교점": "곰작골나주곰탕_역삼초교점",
-    "사람사는고깃집김일도 뱅뱅점": "사람사는고깃집김일도_뱅뱅점",
-    "잇풀키토김밥 샌드위치 샐러드 강남점": "잇풀키토김밥_샌드위치_샐러드_강남점",
-    "엄마손맛집밥세로방": "엄마손맛집밥세로방",
-    "고불초쌈밥 2호점": "고불초쌈밥_2호점",
-    "우심터": "우심터",
-    "난타5000": "난타5000",
-    "봉구스밥버거 역삼삼일점": "봉구스밥버거_역삼삼일점",
-    "세로방": "세로방",
-    "커피콩스토리": "커피콩스토리",
-    "더에이치": "더에이치",
-    "9CAFE": "9CAFE",
-    "소뭉집 본점": "소뭉집_본점",
-    "리첸": "리첸",
-    "지우네": "지우네",
-    "중화카츠": "중화카츠",
-    "교토일식": "교토일식",
-    "회춘식당": "회춘식당",
-    "노브랜드버거 뱅뱅사거리점": "노브랜드버거_뱅뱅사거리점",
-    "라망드쉐프": "라망드쉐프",
-    "서초골": "서초골",
-    "에슬로우커피 뱅뱅사거리점": "에슬로우커피_뱅뱅사거리점",
-    "전주피순대": "전주피순대",
-    "오로스트커피": "오로스트커피",
-    "다슬음": "다슬음",
-    "조순금닭도리탕": "조순금닭도리탕",
-    "궁민김밥": "궁민김밥",
-    "더벤티 뱅뱅사거리점": "더벤티_뱅뱅사거리점",
-    "돼지벅스": "돼지벅스",
-    "시원한대구탕": "시원한대구탕",
-    "판문점부대찌개 역삼점": "판문점부대찌개_역삼점",
-    "청담배짱이": "청담배짱이",
-    "통돼지 두루치기김치찌개": "통돼지_두루치기김치찌개",
-    "봉평착한메밀": "봉평착한메밀",
-    "칸꼬시": "칸꼬시",
-    "곰바로곰탕": "곰바로곰탕",
-    "문화시민": "문화시민",
-    "오늘은 어떤닭": "오늘은_어떤닭",
-    "카페블랑131": "카페블랑131",
-    "버드나무집 서초본점": "버드나무집_서초본점",
-    "파스쿠찌 뱅뱅사거리점": "파스쿠찌_뱅뱅사거리점",
-    "남강매점": "남강매점",
-    "스타벅스 서초태우빌딩점": "스타벅스_서초태우빌딩점",
-    "맥켄치킨": "맥켄치킨",
-    "봉피양 양재점": "봉피양_양재점",
-    "깡돈": "깡돈",
-    "북경반점": "북경반점",
-    "무화잠 강남점": "무화잠_강남점",
-    "아워948": "아워948",
-    "참족": "참족",
-    "예당": "예당",
-    "다돈식당": "다돈식당",
-    "낙여삼": "낙여삼",
-    "명동할머니국수 뱅뱅사거리점": "명동할머니국수_뱅뱅사거리점",
-    "이천쌀밥": "이천쌀밥",
-    "또봉이통닭 도곡점": "또봉이통닭_도곡점",
-    "카린지린가네스낵바 뱅뱅사거리점": "카린지린가네스낵바_뱅뱅사거리점",
-    "왕산골": "왕산골",
-    "서초남순남순대국 본점": "서초남순남순대국_본점",
-    "브라운돈까스 뱅뱅사거리점": "브라운돈까스_뱅뱅사거리점",
-    "고품격커피공장 뱅뱅사거리점": "고품격커피공장_뱅뱅사거리점",
-    "두두돼지불백": "두두돼지불백",
-    "사천루": "사천루",
-    "장수촌풍천장어": "장수촌풍천장어",
-    "뱅뱅막국수 역삼본점": "뱅뱅막국수_역삼본점",
-    "커피박스": "커피박스",
-    "뚜레쥬르 뱅뱅사거리점": "뚜레쥬르_뱅뱅사거리점",
-    "멜론": "멜론",
-    "오아시스": "오아시스",
-    "에이림커피": "에이림커피",
-    "카페S": "카페S",
-    "원할매이모네닭한마리": "원할매이모네닭한마리",
-    "영이네추억의떡볶이": "영이네추억의떡볶이",
-    "비채": "비채",
-    "한강수": "한강수",
-    "고래똥": "고래똥",
-    "두메 도곡점": "두메_도곡점",
-    "썸": "썸",
-    "샵5827 에스프레소": "샵5827_에스프레소",
-    "메종보탄": "메종보탄",
-    "오하나 도곡점" : "오하나_도곡점"
-}
+# 카테고리 매핑 함수
+def map_category(category):
+    category_map = {
+        "한식": ['한식', '곰탕,설렁탕', '돼지고기구이', '낙지요리', '백반,가정식', '육류,고기요리', '순대,순댓국', '찌개,전골', '정육식당', '장어,먹장어요리', '족발,보쌈', '한식뷔페', '닭요리', '국수'],
+        "중식": ['중식당'],
+        "일식": ['일식당', '생선회', '초밥,롤', '돈가스'],
+        "양식": ['이탈리아음식', '햄버거'],
+        "분식": ['분식', '종합분식', '김밥'],
+        "카페/디저트": ['카페', '카페,디저트', '베이커리'],
+        "치킨": ['치킨,닭강정'],
+        "해물": ['게요리', '매운탕,해물탕', '해물,생선요리'],
+        "요리주점": ['요리주점', '바(BAR)', '맥주,호프', '포장마차'],
+        "다이어트": ['샌드위치']
+    }
+    for main_category, sub_categories in category_map.items():
+        if category in sub_categories:
+            return main_category
+    return "기타"
 
-
-@app.route('/stores', methods=['GET'])
-def get_stores():
-    """
-    데이터베이스에서 모든 가게 정보를 가져와 JSON으로 반환
-    """
-    connection = pymysql.connect(**db_config)
+@app.route('/markers', methods=['GET'])
+def get_markers():
     try:
-        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-            cursor.execute("SELECT store_name, address FROM stores")
-            stores = cursor.fetchall()
-        return jsonify(stores)
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        
+        query = "SELECT store_id, store_name AS name, address, category FROM stores"
+        cursor.execute(query)
+        results = cursor.fetchall()
+
+        for result in results:
+            result['main_category'] = map_category(result['category'])
+
+        return jsonify(results)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:
-        connection.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
-
-@app.route('/reviews/<place_name>', methods=['GET'])
-def get_reviews(place_name):
-    """
-    특정 가게의 리뷰를 데이터베이스에서 가져와 HTML로 렌더링
-    """
-    # 매핑된 테이블 이름 가져오기
-    table_name = tableMapping.get(place_name)
-    if not table_name:
-        return jsonify({"error": f"No mapping found for {place_name}"}), 400
-
-    # 데이터베이스 연결
-    connection = pymysql.connect(**db_config)
+@app.route('/reviews/<int:store_id>', methods=['GET'])
+def get_reviews(store_id):
     try:
-        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-            platforms = ['네이버', '카카오', '구글']
-            reviews = {}
-            for platform in platforms:
-                cursor.execute(f"SELECT * FROM {table_name} WHERE platform = %s", (platform,))
-                reviews[platform] = cursor.fetchall()
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
 
-        # HTML 템플릿 렌더링
-        return render_template('reviews.html', place_name=place_name, reviews=reviews)
-    except pymysql.err.ProgrammingError as e:
-        return jsonify({"error": f"Table access error for {table_name}: {str(e)}"}), 400
+        query = """
+            SELECT review_date, review_text, final_sentiment 
+            FROM reviews 
+            WHERE store_id = %s
+            ORDER BY review_date DESC
+        """
+        cursor.execute(query, (store_id,))
+        reviews = cursor.fetchall()
+
+        if not reviews:
+            return jsonify({"message": "리뷰가 없습니다."}), 404
+
+        return jsonify(reviews)
+    except mysql.connector.Error as e:
+        return jsonify({"error": f"MySQL Error: {str(e)}"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     finally:
-        connection.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
-
-@app.route('/map', methods=['GET'])
-def render_map():
-    """
-    Kakao 지도 HTML 파일 렌더링
-    """
-    return render_template('kakaoAPI_test.html')  # HTML 파일 이름
-
+@app.route('/reviews.html')
+def render_reviews_page():
+    return render_template('reviews.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5000, debug=True)

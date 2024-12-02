@@ -13,7 +13,8 @@ db_config = {
 }
 
 # CSV 파일 경로 설정
-csv_dir = r'C:\fintech_service\final_project\data\리뷰추출\업종정보\병합결과'
+csv_dir = r'C:\study\fintech\final_project\data\리뷰추출\업종정보\병합결과'
+# csv_dir = r'C:\fintech_service\final_project\data\리뷰추출\업종정보\병합결과'
 
 # 데이터베이스 테이블 명
 table_name = 'stores'
