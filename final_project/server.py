@@ -67,18 +67,40 @@ def get_reviews(store_id):
         cursor = conn.cursor(dictionary=True)
 
         query = """
-            SELECT DATE_FORMAT(review_date, '%Y-%m') AS review_date, review_text
+            SELECT DATE_FORMAT(review_date, '%Y-%m') AS review_date,
+                   review_text,
+                   platform,
+                   naver_rating,
+                   kakao_rating,
+                   google_rating,
+                   store_name,
+                   address
             FROM reviews 
-            WHERE store_id = %s
+            JOIN stores ON stores.store_id = reviews.store_id
+            WHERE reviews.store_id = %s
             ORDER BY review_date DESC
         """
         cursor.execute(query, (store_id,))
         reviews = cursor.fetchall()
 
-        return jsonify(reviews)
+        if not reviews:
+            return jsonify({"message": "리뷰가 없습니다."}), 404
+
+        store_name = reviews[0]['store_name'] if reviews else ""
+        address = reviews[0]['address'] if reviews else ""
+
+        response = {
+            "store_name": store_name.replace('_', ' '),
+            "address": address,
+            "reviews": reviews
+        }
+
+        return jsonify(response)
     except mysql.connector.Error as e:
+        print(f"MySQL Error: {str(e)}")  # 서버 로그에 오류 출력
         return jsonify({"error": f"MySQL Error: {str(e)}"}), 500
     except Exception as e:
+        print(f"General Error: {str(e)}")  # 서버 로그에 오류 출력
         return jsonify({"error": str(e)}), 500
     finally:
         if cursor:
