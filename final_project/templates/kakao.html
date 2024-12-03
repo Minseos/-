@@ -98,7 +98,7 @@
         <div class="info-content">
             <h4 id="info-title">가게 이름</h4>
             <p id="info-address">가게 주소</p>
-            <button id="view-reviews">리뷰 보기</button>
+            <button id="view-reviews">자세히 보기</button>
         </div>
     </div>
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=63e3067448f3fd1670dd681def99e897&libraries=services"></script>
@@ -216,9 +216,12 @@
             document.getElementById('info-title').textContent = title;
             document.getElementById('info-address').textContent = address;
             document.getElementById('info-image').src = imageUrl;
+    
+            // 새 창에서 리뷰 페이지 열기
             document.getElementById('view-reviews').onclick = function () {
-                window.location.href = `/reviews.html?storeId=${storeId}`;
+                window.open(`/reviews.html?storeId=${storeId}`, '_blank');
             };
+    
             document.getElementById('info-panel').style.display = 'block';
         }
 

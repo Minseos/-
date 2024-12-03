@@ -1,9 +1,13 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request
 import mysql.connector
 from flask_cors import CORS
-from dbenv import id, pw, host, database  # MySQL 연결 정보 가져오기
+from dbenv import id, pw, host, database
+import os
 
-app = Flask(__name__)
+app = Flask(
+    __name__, 
+    template_folder=os.path.join('C:/fintech_service/final_project', 'templates')
+)
 CORS(app)
 
 # MySQL 연결 정보
@@ -39,7 +43,7 @@ def get_markers():
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        
+
         query = "SELECT store_id, store_name AS name, address, category FROM stores"
         cursor.execute(query)
         results = cursor.fetchall()
@@ -63,16 +67,13 @@ def get_reviews(store_id):
         cursor = conn.cursor(dictionary=True)
 
         query = """
-            SELECT review_date, review_text, final_sentiment 
+            SELECT DATE_FORMAT(review_date, '%Y-%m') AS review_date, review_text
             FROM reviews 
             WHERE store_id = %s
             ORDER BY review_date DESC
         """
         cursor.execute(query, (store_id,))
         reviews = cursor.fetchall()
-
-        if not reviews:
-            return jsonify({"message": "리뷰가 없습니다."}), 404
 
         return jsonify(reviews)
     except mysql.connector.Error as e:
@@ -85,9 +86,5 @@ def get_reviews(store_id):
         if conn:
             conn.close()
 
-@app.route('/reviews.html')
-def render_reviews_page():
-    return render_template('reviews.html')
-
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(host='127.0.0.1', port=5000, debug=True)
