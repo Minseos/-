@@ -12,7 +12,8 @@
         }
         .store-info {
             display: flex;
-            align-items: center;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 20px;
         }
         .store-info img {
@@ -28,6 +29,10 @@
             margin: 5px 0 0;
             font-size: 14px;
             color: #666;
+        }
+
+        .store-details {
+            margin-top: 10px;
         }
         .rating {
             margin-top: 10px;
@@ -55,6 +60,27 @@
         }
         .rating .rating-label {
             margin-right: 8px; /* 네이버와 ":" 사이의 공백 */
+        }
+        .store-info img {
+            max-width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+        .store-details p {
+            margin: 0;
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+        .details-label {
+            display: inline-block;
+            min-width: 80px; /* 레이블 칸의 고정폭 */
+            font-weight: bold;
+            margin-right: 5px; /* 레이블과 값 사이의 간격 */
+        }
+        
+        .details-value {
+            margin-left: 0px; /* 레이블과 값 사이의 간격 */
         }
         .tab-menu {
             display: flex;
@@ -126,17 +152,23 @@
 </head>
 <body>
     <div class="store-info">
-        <img src="https://via.placeholder.com/50" alt="가게 이미지">
-        <div>
+        <div class="store-details-container">
             <h1 id="store-name">가게 이름</h1>
             <p id="store-address">가게 주소</p>
+            <div class="store-details">
+                <p id="store-phone"><span class="details-label">전화번호 :</span><span id="phone-value">-</span></p>
+                <p id="store-hours"><span class="details-label">영업시간 :</span><span id="hours-value">-</span></p>
+                <p id="store-price"><span class="details-label">가격대 :</span><span id="price-value">-</span></p>
+            </div>
             <div class="rating">
-                <span class="naver">네이버&nbsp; :<span id="naver-rating">-</span></span>
-                <span class="kakao">카카오&nbsp; :<span id="kakao-rating">-</span></span>
-                <span class="google">구글&nbsp; :<span id="google-rating">-</span></span>
+                <span class="naver">네이버&nbsp; : <span id="naver-rating">-</span></span>
+                <span class="kakao">카카오&nbsp; : <span id="kakao-rating">-</span></span>
+                <span class="google">구글&nbsp; : <span id="google-rating">-</span></span>
             </div>
         </div>
+        <img src="https://via.placeholder.com/150" alt="가게 이미지">
     </div>
+    
 
     <div class="tab-menu">
         <button id="all-reviews-tab" class="active">3사 전체 리뷰</button>
@@ -203,6 +235,9 @@
                     // 가게 정보 출력
                     document.getElementById('store-name').textContent = data.store_name;
                     document.getElementById('store-address').textContent = data.address;
+                    document.getElementById('phone-value').textContent = data.phone_number || '-';
+                    document.getElementById('hours-value').textContent = data.business_hours || '-';
+                    document.getElementById('price-value').textContent = data.price_range || '-';
                     document.getElementById('naver-rating').textContent = data.reviews[0]?.naver_rating ?? '-';
                     document.getElementById('kakao-rating').textContent = data.reviews[0]?.kakao_rating ?? '-';
                     document.getElementById('google-rating').textContent = data.reviews[0]?.google_rating ?? '-';

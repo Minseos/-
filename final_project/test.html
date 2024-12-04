@@ -1,31 +1,275 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>카카오 지도 예제</title>
-    <!-- 카카오 지도 API 스크립트 -->
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=6faf87cb97db068169856747cd9a6cf6"></script>
+    <meta charset="utf-8" />
+    <title>Kakao 지도와 키워드 검색</title>
     <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
         #map {
             width: 100%;
-            height: 400px;
+            height: 80%;
+        }
+        #categories {
+            height: 10%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #ccc;
+        }
+        .category-button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 20px;
+            background-color: #ffffff;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .category-button.active {
+            background-color: #ffae00;
+            color: #ffffff;
+        }
+        #info-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            border-top: 1px solid #ccc;
+            padding: 10px;
+            display: none;
+            z-index: 1000;
+        }
+        #info-panel img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            vertical-align: middle;
+            border-radius: 5px;
+        }
+        #info-panel .info-content {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        #info-panel .info-content h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        #info-panel .info-content p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #666;
+        }
+        #info-panel button {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ffae00;
+            color: white;
+            cursor: pointer;
+        }
+        #search-section {
+            padding: 10px;
+            text-align: center;
+            background-color: #f8f8f8;
         }
     </style>
 </head>
 <body>
-    <h1>카카오 지도 예제</h1>
+    <div id="categories">
+        <button class="category-button active" data-category="전체">전체</button>
+        <button class="category-button" data-category="한식">한식</button>
+        <button class="category-button" data-category="중식">중식</button>
+        <button class="category-button" data-category="일식">일식</button>
+        <button class="category-button" data-category="양식">양식</button>
+        <button class="category-button" data-category="분식">분식</button>
+        <button class="category-button" data-category="카페/디저트">카페/디저트</button>
+        <button class="category-button" data-category="치킨">치킨</button>
+        <button class="category-button" data-category="해물">해물</button>
+        <button class="category-button" data-category="요리주점">요리주점</button>
+        <button class="category-button" data-category="다이어트">다이어트</button>
+    </div>
+    <div id="search-section">
+        <input type="text" id="keyword-search" placeholder="리뷰 키워드 검색..." style="width: 70%; padding: 8px; font-size: 14px;">
+        <button onclick="searchByKeyword()" style="padding: 8px; font-size: 14px;">검색</button>
+    </div>
     <div id="map"></div>
-
+    <div id="info-panel">
+        <img id="info-image" src="https://via.placeholder.com/50" alt="가게 이미지">
+        <div class="info-content">
+            <h4 id="info-title">가게 이름</h4>
+            <p id="info-address">가게 주소</p>
+            <p id="info-reviews">키워드 리뷰 개수: </p>
+            <button id="view-reviews">자세히 보기</button>
+        </div>
+    </div>
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=63e3067448f3fd1670dd681def99e897&libraries=services"></script>
     <script>
-        // 지도 초기화
-        var container = document.getElementById('map'); // 지도를 표시할 div 
+        var container = document.getElementById('map');
         var options = {
-            center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심 좌표 (예시: 제주도)
-            level: 3 // 지도의 확대 레벨
+            center: new kakao.maps.LatLng(37.489668, 127.032852),
+            level: 3
         };
+        var map = new kakao.maps.Map(container, options);
 
-        var map = new kakao.maps.Map(container, options); // 지도 생성
+        var geocoder = new kakao.maps.services.Geocoder();
+        var markers = [];
+        var categoryMarkers = {};
+        var openInfoWindow = null;
+
+        var circle = new kakao.maps.Circle({
+            center: new kakao.maps.LatLng(37.489668, 127.032852),
+            radius: 210,
+            strokeWeight: 5,
+            strokeColor: '#FFAE00',
+            strokeOpacity: 0.8,
+            strokeStyle: 'dashed',
+            fillColor: '#FFD2A8',
+            fillOpacity: 0.5
+        });
+        circle.setMap(map);
+
+        var specialInfoWindow = new kakao.maps.InfoWindow({
+            content: `<div style="padding:5px;font-size:14px;font-weight:bold;">특별한 마커 위치</div>`
+        });
+
+        function addMarker(position, title, address, category, storeId, keywordCount) {
+            let adjustedPosition = position;
+
+            // 마커가 다른 마커와 겹치는지 확인하고, 겹칠 경우 위치를 조정
+            while (isMarkerOverlap(adjustedPosition)) {
+                adjustedPosition = new kakao.maps.LatLng(
+                    adjustedPosition.getLat() + (Math.random() * 0.0001 - 0.00005),
+                    adjustedPosition.getLng() + (Math.random() * 0.0001 - 0.00005)
+                );
+            }
+
+            var marker = new kakao.maps.Marker({
+                position: adjustedPosition,
+                map: map,
+                title: title + (keywordCount ? ` (${keywordCount}개 키워드 포함)` : '')
+            });
+
+            var infoWindow = new kakao.maps.InfoWindow({
+                content: `<div style="padding:5px;font-size:14px;"><strong>${title}</strong><br>${address}</div>`
+            });
+
+            kakao.maps.event.addListener(marker, "click", function () {
+                toggleInfoWindow(marker, infoWindow);
+                showInfoPanel(title, address, storeId, "https://via.placeholder.com/50", keywordCount);
+            });
+
+            if (!categoryMarkers[category]) {
+                categoryMarkers[category] = [];
+            }
+            categoryMarkers[category].push(marker);
+            markers.push(marker);
+        }
+
+        function isMarkerOverlap(position) {
+            for (var i = 0; i < markers.length; i++) {
+                var existingMarker = markers[i];
+                var distance = kakao.maps.geometry.spherical.computeDistanceBetween(
+                    existingMarker.getPosition(),
+                    position
+                );
+                if (distance < 20) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        function toggleInfoWindow(marker, infoWindow) {
+            if (openInfoWindow && openInfoWindow !== infoWindow) {
+                openInfoWindow.close();
+            }
+            if (infoWindow.getMap()) {
+                infoWindow.close();
+                openInfoWindow = null;
+            } else {
+                infoWindow.open(map, marker);
+                openInfoWindow = infoWindow;
+            }
+        }
+
+        function showInfoPanel(title, address, storeId, imageUrl, reviewCount) {
+            document.getElementById('info-title').textContent = title;
+            document.getElementById('info-address').textContent = address;
+            document.getElementById('info-image').src = imageUrl;
+            document.getElementById('info-reviews').textContent = `키워드 리뷰 개수: ${reviewCount || 0}`;
+
+            document.getElementById('view-reviews').onclick = function () {
+                window.open(`/reviews.html?storeId=${storeId}`, '_blank');
+            };
+
+            document.getElementById('info-panel').style.display = 'block';
+        }
+
+        function searchByKeyword() {
+            var keyword = document.getElementById('keyword-search').value.trim();
+
+            if (!keyword) {
+                markers.forEach(marker => marker.setMap(null));
+                markers = [];
+                fetch('http://127.0.0.1:5000/markers')
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(location => {
+                            geocoder.addressSearch(location.address, function (result, status) {
+                                if (status === kakao.maps.services.Status.OK) {
+                                    var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                                    addMarker(coords, location.name, location.address, location.main_category, location.store_id, location.keyword_count);
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => console.error('데이터 가져오기 실패:', error));
+                return;
+            }
+
+            fetch(`http://127.0.0.1:5000/search_reviews?keyword=${encodeURIComponent(keyword)}`)
+                .then(response => response.json())
+                .then(data => {
+                    markers.forEach(marker => marker.setMap(null));
+                    markers = [];
+                    if (!data.search_results || data.search_results.length === 0) {
+                        alert("검색 결과가 없습니다.");
+                        return;
+                    }
+
+                    data.search_results.forEach(location => {
+                        geocoder.addressSearch(location.address, function (result, status) {
+                            if (status === kakao.maps.services.Status.OK) {
+                                const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                                addMarker(coords, location.name, location.address, location.main_category, location.store_id, location.keyword_count);
+                            }
+                        });
+                    });
+                })
+                .catch(error => console.error('검색 실패:', error));
+        }
+
+        fetch('http://127.0.0.1:5000/markers')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(location => {
+                    geocoder.addressSearch(location.address, function (result, status) {
+                        if (status === kakao.maps.services.Status.OK) {
+                            var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                            addMarker(coords, location.name, location.address, location.main_category, location.store_id, location.keyword_count);
+                        }
+                    });
+                });
+            })
+            .catch(error => console.error('데이터 가져오기 실패:', error));
     </script>
 </body>
 </html>

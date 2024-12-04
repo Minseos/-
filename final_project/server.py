@@ -44,21 +44,115 @@ def get_markers():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        query = "SELECT store_id, store_name AS name, address, category FROM stores"
+        query = "SELECT store_id, store_name AS name, address, category, phone_number, business_hours, price_range FROM stores"
         cursor.execute(query)
         results = cursor.fetchall()
 
         for result in results:
             result['main_category'] = map_category(result['category'])
+            result['phone_number'] = result['phone_number'] or '-'
+            result['business_hours'] = result['business_hours'] or '-'
+            result['price_range'] = result['price_range'] or '-'
 
         return jsonify(results)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "데이터를 불러오는 중 문제가 발생했습니다."}), 500
     finally:
         if cursor:
             cursor.close()
         if conn:
             conn.close()
+
+# @app.route('/reviews/<int:store_id>', methods=['GET'])
+# def get_reviews(store_id):
+#     try:
+#         conn = mysql.connector.connect(**db_config)
+#         cursor = conn.cursor(dictionary=True)
+
+#         query = """
+#             SELECT DATE_FORMAT(review_date, '%Y-%m') AS review_date,
+#                    review_text,
+#                    platform,
+#                    naver_rating,
+#                    kakao_rating,
+#                    google_rating,
+#                    stores.store_name,
+#                    stores.address,
+#                    stores.phone_number,
+#                    stores.business_hours,
+#                    stores.price_range
+#             FROM reviews 
+#             JOIN stores ON stores.store_id = reviews.store_id
+#             WHERE reviews.store_id = %s
+#             ORDER BY review_date DESC
+#         """
+#         cursor.execute(query, (store_id,))
+#         reviews = cursor.fetchall()
+
+#         if not reviews:
+#             return jsonify({"message": "리뷰가 없습니다."}), 404
+
+#         store_name = reviews[0]['store_name']
+#         address = reviews[0]['address']
+#         phone_number = reviews[0]['phone_number'] or "-"
+#         business_hours = reviews[0]['business_hours'] or "-"
+#         price_range = reviews[0]['price_range'] or "-"
+
+#         response = {
+#             "store_name": store_name.replace('_', ' '),
+#             "address": address,
+#             "phone_number": phone_number,
+#             "business_hours": business_hours,
+#             "price_range": price_range,
+#             "reviews": reviews
+#         }
+
+#         return jsonify(response)
+#     except mysql.connector.Error as e:
+#         print(f"MySQL Error: {str(e)}")  # 서버 로그에 오류 출력
+#         return jsonify({"error": "데이터베이스와 통신 중 문제가 발생했습니다."}), 500
+#     except Exception as e:
+#         print(f"General Error: {str(e)}")  # 서버 로그에 오류 출력
+#         return jsonify({"error": "서버에서 문제가 발생했습니다."}), 500
+#     finally:
+#         if cursor:
+#             cursor.close()
+#         if conn:
+#             conn.close()
+
+# @app.route('/search_reviews', methods=['GET'])
+# def search_reviews():
+#     keyword = request.args.get('keyword', '').strip()
+
+#     if not keyword:
+#         return jsonify({"search_results": []})
+
+#     try:
+#         conn = mysql.connector.connect(**db_config)
+#         cursor = conn.cursor(dictionary=True)
+
+#         query = """
+#             SELECT stores.store_id, stores.store_name AS name, stores.address, stores.category, COUNT(reviews.review_id) AS keyword_count
+#             FROM reviews
+#             JOIN stores ON stores.store_id = reviews.store_id
+#             WHERE reviews.review_text LIKE %s
+#             GROUP BY stores.store_id, stores.store_name, stores.address, stores.category
+#         """
+#         cursor.execute(query, (f"%{keyword}%",))
+#         results = cursor.fetchall()
+
+#         for result in results:
+#             result['main_category'] = map_category(result['category'])
+
+#         return jsonify({"search_results": results})
+#     except Exception as e:
+#         print(f"Error: {str(e)}")  # 서버 로그 출력
+#         return jsonify({"error": "검색 중 문제가 발생했습니다."}), 500
+#     finally:
+#         if cursor:
+#             cursor.close()
+#         if conn:
+#             conn.close()
 
 @app.route('/reviews/<int:store_id>', methods=['GET'])
 def get_reviews(store_id):
@@ -73,8 +167,11 @@ def get_reviews(store_id):
                    naver_rating,
                    kakao_rating,
                    google_rating,
-                   store_name,
-                   address
+                   stores.store_name,
+                   stores.address,
+                   stores.phone_number,
+                   stores.business_hours,
+                   stores.price_range
             FROM reviews 
             JOIN stores ON stores.store_id = reviews.store_id
             WHERE reviews.store_id = %s
@@ -86,27 +183,24 @@ def get_reviews(store_id):
         if not reviews:
             return jsonify({"message": "리뷰가 없습니다."}), 404
 
-        store_name = reviews[0]['store_name'] if reviews else ""
-        address = reviews[0]['address'] if reviews else ""
-
         response = {
-            "store_name": store_name.replace('_', ' '),
-            "address": address,
+            "store_name": reviews[0]['store_name'].replace('_', ' '),
+            "address": reviews[0]['address'],
+            "phone_number": reviews[0]['phone_number'] or "-",
+            "business_hours": reviews[0]['business_hours'] or "-",
+            "price_range": reviews[0]['price_range'] or "-",
             "reviews": reviews
         }
-
         return jsonify(response)
-    except mysql.connector.Error as e:
-        print(f"MySQL Error: {str(e)}")  # 서버 로그에 오류 출력
-        return jsonify({"error": f"MySQL Error: {str(e)}"}), 500
     except Exception as e:
-        print(f"General Error: {str(e)}")  # 서버 로그에 오류 출력
-        return jsonify({"error": str(e)}), 500
+        print(f"Error: {str(e)}")
+        return jsonify({"error": "서버에서 문제가 발생했습니다."}), 500
     finally:
         if cursor:
             cursor.close()
         if conn:
             conn.close()
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)
