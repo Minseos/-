@@ -32,6 +32,52 @@
         .rating {
             margin-top: 10px;
             font-size: 14px;
+            display: flex;
+            gap: 20px; /* 별점 간 간격 */
+        }
+        .rating span {
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+        }
+        .rating .naver {
+            background-color: #e6f4e6;
+            color: #333;
+        }
+        .rating .kakao {
+            background-color: #fff7cc;
+            color: #333;
+        }
+        .rating .google {
+            background-color: #d2e3fc;
+            color: #333;
+        }
+        .rating .rating-label {
+            margin-right: 8px; /* 네이버와 ":" 사이의 공백 */
+        }
+        .tab-menu {
+            display: flex;
+            border-bottom: 2px solid #ccc;
+            margin-bottom: 20px;
+        }
+        .tab-menu button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+        }
+        .tab-menu button.active {
+            background: #dcd6f7;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
         }
         .filter-section {
             margin-bottom: 20px;
@@ -75,7 +121,6 @@
         }
         .platform.google {
             background-color: #d2e3fc;
-            color: #4285f4;
         }
     </style>
 </head>
@@ -86,27 +131,38 @@
             <h1 id="store-name">가게 이름</h1>
             <p id="store-address">가게 주소</p>
             <div class="rating">
-                <span>네이버: <span id="naver-rating">-</span></span>
-                <span>카카오: <span id="kakao-rating">-</span></span>
-                <span>구글: <span id="google-rating">-</span></span>
+                <span class="naver">네이버&nbsp; :<span id="naver-rating">-</span></span>
+                <span class="kakao">카카오&nbsp; :<span id="kakao-rating">-</span></span>
+                <span class="google">구글&nbsp; :<span id="google-rating">-</span></span>
             </div>
         </div>
     </div>
 
-    <div class="filter-section">
-        <label><input type="checkbox" id="naver-checkbox" checked> 네이버</label>
-        <label><input type="checkbox" id="kakao-checkbox" checked> 카카오</label>
-        <label><input type="checkbox" id="google-checkbox" checked> 구글</label>
+    <div class="tab-menu">
+        <button id="all-reviews-tab" class="active">3사 전체 리뷰</button>
+        <button id="analysis-report-tab">리뷰 분석 리포트</button>
     </div>
 
-    <div class="search-section">
-        <input type="text" id="review-search" placeholder="리뷰 검색..." style="width: 100%; padding: 8px; font-size: 14px;">
+    <div id="all-reviews-content" class="tab-content active">
+        <div class="filter-section">
+            <label><input type="checkbox" id="naver-checkbox" checked> 네이버</label>
+            <label><input type="checkbox" id="kakao-checkbox" checked> 카카오</label>
+            <label><input type="checkbox" id="google-checkbox" checked> 구글</label>
+        </div>
+
+        <div class="search-section">
+            <input type="text" id="review-search" placeholder="리뷰 검색..." style="width: 100%; padding: 8px; font-size: 14px;">
+        </div>
+
+        <div id="reviews-container" class="review-section"></div>
     </div>
 
-    <div id="reviews-container" class="review-section"></div>
+    <div id="analysis-report-content" class="tab-content">
+        <p>리뷰 분석 리포트가 여기에 표시됩니다.</p>
+    </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             const urlParams = new URLSearchParams(window.location.search);
             const store_id = urlParams.get('storeId');
 
@@ -114,6 +170,26 @@
                 document.getElementById('reviews-container').innerHTML = "<p>유효한 Store ID가 필요합니다.</p>";
                 return;
             }
+
+            // 탭 전환 로직
+            const allReviewsTab = document.getElementById("all-reviews-tab");
+            const analysisReportTab = document.getElementById("analysis-report-tab");
+            const allReviewsContent = document.getElementById("all-reviews-content");
+            const analysisReportContent = document.getElementById("analysis-report-content");
+
+            allReviewsTab.addEventListener("click", function () {
+                allReviewsTab.classList.add("active");
+                analysisReportTab.classList.remove("active");
+                allReviewsContent.classList.add("active");
+                analysisReportContent.classList.remove("active");
+            });
+
+            analysisReportTab.addEventListener("click", function () {
+                analysisReportTab.classList.add("active");
+                allReviewsTab.classList.remove("active");
+                analysisReportContent.classList.add("active");
+                allReviewsContent.classList.remove("active");
+            });
 
             // 서버에서 리뷰 데이터를 가져옴
             fetch(`http://127.0.0.1:5000/reviews/${store_id}`)
