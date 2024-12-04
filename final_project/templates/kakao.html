@@ -226,17 +226,18 @@
                 openInfoWindow = null;
             }
         
+            // 키워드가 없는 경우 모든 마커 표시
             if (!keyword) {
-                // 키워드가 없으면 모든 마커 표시
                 fetch('http://127.0.0.1:5000/markers')
                     .then(response => response.json())
                     .then(data => {
-                        console.log("모든 데이터:", data); // 디버깅용
                         data.forEach(location => {
                             geocoder.addressSearch(location.address, function (result, status) {
                                 if (status === kakao.maps.services.Status.OK) {
                                     var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-                                    addMarker(coords, location.name, location.address, location.main_category, location.store_id, location.keyword_count);
+                                    addMarker(coords, location.name, location.address, location.main_category, location.store_id);
+                                } else {
+                                    console.error('주소 검색 실패:', location.address);
                                 }
                             });
                         });
@@ -249,7 +250,6 @@
             fetch(`http://127.0.0.1:5000/search_reviews?keyword=${encodeURIComponent(keyword)}`)
                 .then(response => response.json())
                 .then(data => {
-                    console.log("검색 결과:", data); // 디버깅용
                     if (!data.search_results || data.search_results.length === 0) {
                         alert("검색 결과가 없습니다.");
                         return;
@@ -258,7 +258,7 @@
                     data.search_results.forEach(location => {
                         geocoder.addressSearch(location.address, function (result, status) {
                             if (status === kakao.maps.services.Status.OK) {
-                                const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                                var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
                                 addMarker(coords, location.name, location.address, location.main_category, location.store_id, location.keyword_count);
                             } else {
                                 console.error('주소 검색 실패:', location.address);
