@@ -1,0 +1,158 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>네이버::페이지를 찾을 수 없습니다.</title>
+    <style>
+        /* reset */
+        html, body{height: 100%;-webkit-text-size-adjust: none;}
+        html,body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,p,table,th,td,form,fieldset,legend,textarea,input,select,textarea,button,figure,figcaption,a,span,address,strong {margin: 0;padding: 0;box-sizing: border-box;-webkit-box-sizing: border-box;}
+        body,input,select,textarea,button,h1,h2,h3,h4,h5,h6,a{color: #000;font-family:'NanumSquare','나눔스퀘어',AppleSDGothicNeo-Regular,"Helvetica Neue", Helvetica, Arial, sans-serif;	font-size: 12px;font-weight: 400; line-height: 1.2; -webkit-appearance: none;appearance: none;}
+        img {border: 0;vertical-align: top;}
+        ul,ol,li{list-style: none;}
+        em,address{font-style: normal;}
+        a{color: inherit;text-decoration: none;-webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);-webkit-tap-highlight-color:transparent;}
+        a:hover,a:active,a:focus{text-decoration: none;outline: 0;}
+        table{border-collapse: collapse;border-spacing: 0;}
+        button{border: none;background: none;cursor: pointer;-webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);-webkit-tap-highlight-color: transparent;}
+        .blind{overflow: hidden;position: absolute !important;width: 1px;height: 1px;border: 0;padding: 0;clip: rect(0px, 0px, 0px, 0px);}
+
+        /* font */
+        @font-face {
+            font-family: "NanumSquare";
+            font-style: normal;
+            src: url("/webfont/NanumSquare/NanumSquareR.eot");
+            src: url("/webfont/NanumSquare/NanumSquareR.eot?#iefix") format("embedded-opentype"),
+            url("/webfont/NanumSquare/NanumSquareR.woff") format("woff"),
+            url("/webfont/NanumSquare/NanumSquareR.ttf") format("truetype");
+            font-weight: normal;
+        }
+
+        @font-face {
+            font-family: "NanumSquare";
+            font-style: normal;
+            src: url("/webfont/NanumSquare/NanumSquareB.eot");
+            src: url("/webfont/NanumSquare/NanumSquareB.eot?#iefix") format("embedded-opentype"),
+            url("/webfont/NanumSquare/NanumSquareB.woff") format("woff"),
+            url("/webfont/NanumSquare/NanumSquareB.ttf") format("truetype");
+            font-weight: bold;
+        }
+
+        @font-face {
+            font-family: "NanumSquare";
+            font-style: normal;
+            src: url("/webfont/NanumSquare/NanumSquareEB.eot");
+            src: url("/webfont/NanumSquare/NanumSquareEB.eot?#iefix") format("embedded-opentype"),
+            url("/webfont/NanumSquare/NanumSquareEB.woff") format("woff"),
+            url("/webfont/NanumSquare/NanumSquareEB.ttf") format("truetype");
+            font-weight: 900;
+        }
+
+        /* style */
+        .wrap{min-width: 1200px;}
+        .wrap .inner{max-width:1100px; margin: 0 auto;text-align: center;}
+        .header .inner{padding: 76px 0 0;}
+        .header .logo_link{display: block;margin-left:40px;width:90px;height:18px;background: url(/img/404error/logo_pc_v2.png) no-repeat 0 0;background-size: 90px 18px;}
+        .container .inner{padding: 139px 0 50px;}
+        .container .ct_title{margin-bottom:22px;font-size: 40px;font-weight:900;letter-spacing: -2.4px;color: #111;}
+        .container .text_green{color: #03c75a;}
+        .container .desc_text{margin-bottom:45px;font-size: 24px; line-height: 36px; letter-spacing: -1.44px; color: #939393;}
+        .container .btn_area{margin-bottom:182px;font-size: 0;}
+        .container .btn_area a[class^="btn_"]{display: inline-block;vertical-align:top;width:160px;font-size: 24px;line-height: 58px;letter-spacing: -1.44px;color: #424242;border: 1px solid #e3e7e8;background-color: #fafbfc;}
+        .container .btn_home{margin-left: 10px;}
+        .container .btn_banner{display:block; margin: 0 auto; width: 570px;}
+        .footer .inner{padding: 20px 0 130px;border-top: 1px solid #ddd;}
+        .footer .footer_copy{font-size: 12px;line-height: 46px;letter-spacing: -0.72px;color: #b0b0b0;}
+    </style>
+</head>
+
+<body>
+<div class="wrap">
+    <header class="header">
+        <div class="inner">
+            <h1 class="logo">
+                <a href="https://naver.com/" class="logo_link">
+                    <span class="blind">NAVER</span>
+                </a>
+            </h1>
+        </div>
+    </header>
+    <div class="container">
+        <div class="inner">
+            <h2 class="ct_title">
+                혹시, <span class="text_green">잘못된 주소</span>가 아닌가요?
+            </h2>
+            <p class="desc_text">
+                페이지를 찾을 수 없습니다. 잘못된 주소가 아니라면,<br>
+                페이지가 삭제되었거나 주소가 변경되었을 수 있습니다.<br>
+                다시 한번 확인해 주시기 바랍니다.
+            </p>
+            <div class="btn_area">
+                <a href="#" class="btn_prev">
+                    이전 페이지
+                </a>
+                <a href="#" class="btn_home">
+                    네이버 홈
+                </a>
+            </div>
+            <a href="#" class="btn_banner">
+                <img src="/img/404error/banner.png" width="570" height="152" alt="NAVER 네이버앱 주문하기 스윽- 도넛 한 통 싹!">
+            </a>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="inner">
+            <a href="https://www.navercorp.com/" class="footer_copy">
+                Copyright © NAVER Corp. All Rights Reserved.
+            </a>
+        </div>
+    </footer>
+</div>
+<script type="text/javascript" src="/js/jquery-1.12.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+
+        $(".logo_link").attr("href", "https://naver.com");
+        $(".btn_home").attr("href", "https://naver.com/");
+
+        $(".btn_prev").click(function(event){
+            event.preventDefault();
+            window.history.back();
+        })
+
+        var bannerList;
+        var idx = 0;
+
+        $.ajax({
+            type: 'get',
+            url: '/api/cpa/404error',
+            cache : false,
+            contentType: 'application/json',
+            error:function() {
+            },
+            success: function(response) {
+                var data = JSON.parse(response);
+                bannerList = data.banner;
+                rolling();
+            }
+        });
+
+        function rolling() {
+            $(".btn_banner").attr("href", bannerList[idx].link);
+            $(".btn_banner").data("acode", bannerList[idx].acode);
+            $(".btn_banner").find("img").attr("src", bannerList[idx].img);
+
+            idx = (idx+1) % bannerList.length;
+
+            setTimeout(function() {
+                rolling();
+            }, 7000)
+        }
+    })
+</script>
+
+</body>
+</html>
