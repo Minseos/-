@@ -46,8 +46,9 @@ def get_markers():
         cursor = conn.cursor(dictionary=True)
 
         query = """
-            SELECT store_id, store_name AS name, address, category
-            FROM stores
+            SELECT s.store_id, s.store_name AS name, s.address, s.category, a.menu_photo
+            FROM stores s
+            LEFT JOIN analysis a ON s.store_id = a.store_id
         """
         cursor.execute(query)
         results = cursor.fetchall()
@@ -64,6 +65,7 @@ def get_markers():
             cursor.close()
         if conn:
             conn.close()
+
 
 
 # 2. `/reviews/<store_id>` 엔드포인트: 특정 가게의 상세 리뷰 데이터를 반환 - 상세 정보

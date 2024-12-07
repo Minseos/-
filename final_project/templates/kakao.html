@@ -47,8 +47,8 @@
             z-index: 1000;
         }
         #info-panel img {
-            width: 50px;
-            height: 50px;
+            width: 100px;
+            height: 100px;
             margin-right: 10px;
             vertical-align: middle;
             border-radius: 5px;
@@ -59,7 +59,7 @@
         }
         #info-panel .info-content h4 {
             margin: 0;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
         }
         #info-panel .info-content p {
@@ -121,7 +121,7 @@
         var map = new kakao.maps.Map(container, options);
 
         var geocoder = new kakao.maps.services.Geocoder();
-        var markers = [];
+        var markers = {}; // store_id별로 마커 저장
         var categoryMarkers = {};
         var openInfoWindow = null;
 
@@ -144,8 +144,15 @@
             fillOpacity: 0.5
         });
         circle.setMap(map);
+    
+        function addMarker(position, title, address, category, storeId, menuPhotoUrl, keywordCount) {
+            // 중복 확인: storeId 기준으로 이미 마커가 있으면 추가하지 않음
+            if (markers[storeId]) {
+                console.log(`중복 마커 제거: ${storeId} (${title})`);
+                return;
+            }
 
-        function addMarker(position, title, address, category, storeId, keywordCount) {
+            // 위치 오프셋 추가 (같은 위치에 여러 마커가 겹치지 않도록)
             position = new kakao.maps.LatLng(
                 position.getLat() + offsets[offsetIndex].y,
                 position.getLng() + offsets[offsetIndex].x
@@ -169,17 +176,18 @@
                 content: infoContent
             });
 
-
             kakao.maps.event.addListener(marker, "click", function () {
                 toggleInfoWindow(marker, infoWindow);
-                showInfoPanel(title, address, storeId, "https://via.placeholder.com/50", keywordCount);
+                showInfoPanel(title, address, storeId, menuPhotoUrl || "https://via.placeholder.com/50", keywordCount);
             });
 
             if (!categoryMarkers[category]) {
                 categoryMarkers[category] = [];
             }
             categoryMarkers[category].push(marker);
-            markers.push(marker);
+
+            // store_id를 키로 마커 저장
+            markers[storeId] = marker;
         }
 
         function toggleInfoWindow(marker, infoWindow) {
@@ -200,7 +208,6 @@
             document.getElementById('info-address').textContent = address;
             document.getElementById('info-image').src = imageUrl;
 
-            // 키워드 리뷰 개수가 있는 경우에만 해당 정보를 표시합니다.
             if (reviewCount && reviewCount > 0) {
                 document.getElementById('info-reviews').textContent = `키워드 리뷰 개수: ${reviewCount}`;
                 document.getElementById('info-reviews').style.display = 'block';
@@ -215,38 +222,39 @@
             document.getElementById('info-panel').style.display = 'block';
         }
 
+        function clearMarkers() {
+            for (var key in markers) {
+                markers[key].setMap(null);
+            }
+            markers = {};
+        }
+
+        function fetchMarkers() {
+            clearMarkers(); // 기존 마커 초기화
+            fetch('http://127.0.0.1:5000/markers')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(location => {
+                        geocoder.addressSearch(location.address, function (result, status) {
+                            if (status === kakao.maps.services.Status.OK) {
+                                var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                                addMarker(coords, location.name, location.address, location.main_category, location.store_id, location.menu_photo, location.keyword_count);
+                            }
+                        });
+                    });
+                })
+                .catch(error => console.error('데이터 가져오기 실패:', error));
+        }
+
         function searchByKeyword() {
             var keyword = document.getElementById('keyword-search').value.trim();
-        
-            // 기존 마커 초기화
-            markers.forEach(marker => marker.setMap(null));
-            markers = [];
-            if (openInfoWindow) {
-                openInfoWindow.close();
-                openInfoWindow = null;
-            }
-        
-            // 키워드가 없는 경우 모든 마커 표시
+
+            clearMarkers(); // 기존 마커 초기화
             if (!keyword) {
-                fetch('http://127.0.0.1:5000/markers')
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(location => {
-                            geocoder.addressSearch(location.address, function (result, status) {
-                                if (status === kakao.maps.services.Status.OK) {
-                                    var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-                                    addMarker(coords, location.name, location.address, location.main_category, location.store_id);
-                                } else {
-                                    console.error('주소 검색 실패:', location.address);
-                                }
-                            });
-                        });
-                    })
-                    .catch(error => console.error('데이터 가져오기 실패:', error));
+                fetchMarkers(); // 키워드가 없으면 전체 마커 로드
                 return;
             }
-        
-            // 키워드 검색
+
             fetch(`http://127.0.0.1:5000/search_reviews?keyword=${encodeURIComponent(keyword)}`)
                 .then(response => response.json())
                 .then(data => {
@@ -254,20 +262,21 @@
                         alert("검색 결과가 없습니다.");
                         return;
                     }
-        
+
                     data.search_results.forEach(location => {
                         geocoder.addressSearch(location.address, function (result, status) {
                             if (status === kakao.maps.services.Status.OK) {
                                 var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-                                addMarker(coords, location.name, location.address, location.main_category, location.store_id, location.keyword_count);
-                            } else {
-                                console.error('주소 검색 실패:', location.address);
+                                addMarker(coords, location.name, location.address, location.main_category, location.store_id, location.menu_photo, location.keyword_count);
                             }
                         });
                     });
                 })
                 .catch(error => console.error('검색 실패:', error));
         }
+
+        // 초기 데이터 로드
+        fetchMarkers();
         
 
         fetch('http://127.0.0.1:5000/markers')
