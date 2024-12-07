@@ -10,6 +10,9 @@ app = Flask(
 )
 CORS(app)
 
+# 기본 이미지 URL
+DEFAULT_MENU_PHOTO = "https://via.placeholder.com/150"
+
 # MySQL 연결 정보
 db_config = {
     "host": host.split(":")[0],
@@ -46,7 +49,8 @@ def get_markers():
         cursor = conn.cursor(dictionary=True)
 
         query = """
-            SELECT s.store_id, s.store_name AS name, s.address, s.category, a.menu_photo
+            SELECT s.store_id, s.store_name AS name, s.address, s.category, 
+                   COALESCE(a.menu_photo, 'https://via.placeholder.com/150') AS menu_photo
             FROM stores s
             LEFT JOIN analysis a ON s.store_id = a.store_id
         """
@@ -57,9 +61,12 @@ def get_markers():
             result['main_category'] = map_category(result['category'])
 
         return jsonify(results)
+    except Error as e:
+        print(f"MySQL Error: {str(e)}")
+        return jsonify({"error": "MySQL에서 문제가 발생했습니다."}), 500
     except Exception as e:
-        print(f"Error in /markers: {str(e)}")
-        return jsonify({"error": "데이터를 불러오는 중 문제가 발생했습니다."}), 500
+        print(f"Unexpected Error: {str(e)}")
+        return jsonify({"error": "예기치 않은 문제가 발생했습니다."}), 500
     finally:
         if cursor:
             cursor.close()
@@ -86,13 +93,15 @@ def get_reviews(store_id):
                    stores.address,
                    stores.phone_number,
                    stores.business_hours,
-                   stores.price_range
+                   stores.price_range,
+                   COALESCE(analysis.menu_photo, %s) AS menu_photo
             FROM reviews 
             JOIN stores ON stores.store_id = reviews.store_id
+            LEFT JOIN analysis ON stores.store_id = analysis.store_id
             WHERE reviews.store_id = %s
             ORDER BY review_date DESC
         """
-        cursor.execute(query, (store_id,))
+        cursor.execute(query, (DEFAULT_MENU_PHOTO, store_id))
         reviews = cursor.fetchall()
 
         if not reviews:
@@ -104,6 +113,7 @@ def get_reviews(store_id):
             "phone_number": reviews[0]['phone_number'] or "-",
             "business_hours": reviews[0]['business_hours'] or "-",
             "price_range": reviews[0]['price_range'] or "-",
+            "menu_photo": reviews[0]['menu_photo'],  # 추가,
             "reviews": reviews
         }
         return jsonify(response)

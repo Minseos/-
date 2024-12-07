@@ -17,8 +17,8 @@
             margin-bottom: 20px;
         }
         .store-info img {
-            width: 50px;
-            height: 50px;
+            width: 100px;
+            height: 100px;
             margin-right: 20px;
         }
         .store-info h1 {
@@ -166,7 +166,8 @@
                 <span class="google">구글&nbsp; : <span id="google-rating">-</span></span>
             </div>
         </div>
-        <img src="https://via.placeholder.com/150" alt="가게 이미지">
+        <img id="store-image" src="https://via.placeholder.com/150" alt="가게 이미지" style="width: 300px; height: 200px; object-fit: cover; border-radius: 8px;">
+
     </div>
     
 
@@ -195,104 +196,85 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const store_id = urlParams.get('storeId');
+        const urlParams = new URLSearchParams(window.location.search);
+        const store_id = urlParams.get('storeId');
 
-            if (!store_id) {
-                document.getElementById('reviews-container').innerHTML = "<p>유효한 Store ID가 필요합니다.</p>";
-                return;
-            }
+        if (!store_id) {
+            document.getElementById('reviews-container').innerHTML = "<p>유효한 Store ID가 필요합니다.</p>";
+            return;
+        }
 
-            // 탭 전환 로직
-            const allReviewsTab = document.getElementById("all-reviews-tab");
-            const analysisReportTab = document.getElementById("analysis-report-tab");
-            const allReviewsContent = document.getElementById("all-reviews-content");
-            const analysisReportContent = document.getElementById("analysis-report-content");
+        // 서버에서 리뷰 데이터를 가져옴
+        fetch(`http://127.0.0.1:5000/reviews/${store_id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    document.getElementById('reviews-container').innerHTML = `<p>${data.message}</p>`;
+                    return;
+                }
 
-            allReviewsTab.addEventListener("click", function () {
-                allReviewsTab.classList.add("active");
-                analysisReportTab.classList.remove("active");
-                allReviewsContent.classList.add("active");
-                analysisReportContent.classList.remove("active");
+                // 가게 정보 출력
+                document.getElementById('store-name').textContent = data.store_name;
+                document.getElementById('store-address').textContent = data.address;
+                document.getElementById('phone-value').textContent = data.phone_number || '-';
+                document.getElementById('hours-value').textContent = data.business_hours || '-';
+                document.getElementById('price-value').textContent = data.price_range || '-';
+                document.getElementById('naver-rating').textContent = data.reviews[0]?.naver_rating ?? '-';
+                document.getElementById('kakao-rating').textContent = data.reviews[0]?.kakao_rating ?? '-';
+                document.getElementById('google-rating').textContent = data.reviews[0]?.google_rating ?? '-';
+                document.getElementById('store-image').src = data.menu_photo || "https://via.placeholder.com/150";
+
+                // 리뷰 목록 저장
+                const reviews = data.reviews;
+
+                // 필터링 함수
+                function filterReviews() {
+                    const naverChecked = document.getElementById('naver-checkbox').checked;
+                    const kakaoChecked = document.getElementById('kakao-checkbox').checked;
+                    const googleChecked = document.getElementById('google-checkbox').checked;
+                    const searchKeyword = document.getElementById('review-search').value.toLowerCase();
+
+                    const filteredReviews = reviews.filter(review => {
+                        if (review.platform === '네이버' && !naverChecked) return false;
+                        if (review.platform === '카카오' && !kakaoChecked) return false;
+                        if (review.platform === '구글' && !googleChecked) return false;
+                        if (searchKeyword && !review.review_text.toLowerCase().includes(searchKeyword)) return false;
+                        return true;
+                    });
+
+                    renderReviews(filteredReviews);
+                }
+
+                // 리뷰 목록 출력 함수
+                function renderReviews(reviewsToRender) {
+                    const container = document.getElementById('reviews-container');
+                    if (reviewsToRender.length === 0) {
+                        container.innerHTML = "<p>리뷰가 없습니다.</p>";
+                    } else {
+                        const reviewsHtml = reviewsToRender.map(review => {
+                            const platformClass = review.platform === '네이버' ? 'naver' : review.platform === '카카오' ? 'kakao' : 'google';
+                            return `<div class="review">
+                                <div class="review-date"><span class="platform ${platformClass}">[${review.platform}]</span> ${review.review_date}</div>
+                                <div class="review-text">${review.review_text}</div>
+                            </div>`;
+                        }).join('');
+                        container.innerHTML = reviewsHtml;
+                    }
+                }
+
+                // 초기 리뷰 출력
+                filterReviews();
+
+                // 체크박스 및 검색어 입력 시 필터링
+                document.getElementById('naver-checkbox').addEventListener('change', filterReviews);
+                document.getElementById('kakao-checkbox').addEventListener('change', filterReviews);
+                document.getElementById('google-checkbox').addEventListener('change', filterReviews);
+                document.getElementById('review-search').addEventListener('input', filterReviews);
+            })
+            .catch(error => {
+                document.getElementById('reviews-container').innerHTML = `<p>오류가 발생했습니다: ${error.message}</p>`;
             });
-
-            analysisReportTab.addEventListener("click", function () {
-                analysisReportTab.classList.add("active");
-                allReviewsTab.classList.remove("active");
-                analysisReportContent.classList.add("active");
-                allReviewsContent.classList.remove("active");
-            });
-
-            // 서버에서 리뷰 데이터를 가져옴
-            fetch(`http://127.0.0.1:5000/reviews/${store_id}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message) {
-                        document.getElementById('reviews-container').innerHTML = `<p>${data.message}</p>`;
-                        return;
-                    }
-
-                    // 가게 정보 출력
-                    document.getElementById('store-name').textContent = data.store_name;
-                    document.getElementById('store-address').textContent = data.address;
-                    document.getElementById('phone-value').textContent = data.phone_number || '-';
-                    document.getElementById('hours-value').textContent = data.business_hours || '-';
-                    document.getElementById('price-value').textContent = data.price_range || '-';
-                    document.getElementById('naver-rating').textContent = data.reviews[0]?.naver_rating ?? '-';
-                    document.getElementById('kakao-rating').textContent = data.reviews[0]?.kakao_rating ?? '-';
-                    document.getElementById('google-rating').textContent = data.reviews[0]?.google_rating ?? '-';
-
-                    // 리뷰 목록 저장
-                    const reviews = data.reviews;
-
-                    // 필터링 함수
-                    function filterReviews() {
-                        const naverChecked = document.getElementById('naver-checkbox').checked;
-                        const kakaoChecked = document.getElementById('kakao-checkbox').checked;
-                        const googleChecked = document.getElementById('google-checkbox').checked;
-                        const searchKeyword = document.getElementById('review-search').value.toLowerCase();
-
-                        const filteredReviews = reviews.filter(review => {
-                            if (review.platform === '네이버' && !naverChecked) return false;
-                            if (review.platform === '카카오' && !kakaoChecked) return false;
-                            if (review.platform === '구글' && !googleChecked) return false;
-                            if (searchKeyword && !review.review_text.toLowerCase().includes(searchKeyword)) return false;
-                            return true;
-                        });
-
-                        renderReviews(filteredReviews);
-                    }
-
-                    // 리뷰 목록 출력 함수
-                    function renderReviews(reviewsToRender) {
-                        const container = document.getElementById('reviews-container');
-                        if (reviewsToRender.length === 0) {
-                            container.innerHTML = "<p>리뷰가 없습니다.</p>";
-                        } else {
-                            const reviewsHtml = reviewsToRender.map(review => {
-                                const platformClass = review.platform === '네이버' ? 'naver' : review.platform === '카카오' ? 'kakao' : 'google';
-                                return `<div class="review">
-                                    <div class="review-date"><span class="platform ${platformClass}">[${review.platform}]</span> ${review.review_date}</div>
-                                    <div class="review-text">${review.review_text}</div>
-                                </div>`;
-                            }).join('');
-                            container.innerHTML = reviewsHtml;
-                        }
-                    }
-
-                    // 초기 리뷰 출력
-                    filterReviews();
-
-                    // 체크박스 및 검색어 입력 시 필터링
-                    document.getElementById('naver-checkbox').addEventListener('change', filterReviews);
-                    document.getElementById('kakao-checkbox').addEventListener('change', filterReviews);
-                    document.getElementById('google-checkbox').addEventListener('change', filterReviews);
-                    document.getElementById('review-search').addEventListener('input', filterReviews);
-                })
-                .catch(error => {
-                    document.getElementById('reviews-container').innerHTML = `<p>오류가 발생했습니다: ${error.message}</p>`;
-                });
-        });
+    });
     </script>
 </body>
 </html>
