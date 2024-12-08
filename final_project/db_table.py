@@ -76,16 +76,16 @@ def create_tables():
             """)
             print("reviews 테이블 생성 완료")
 
-            # 3. analysis 테이블 생성
+            # analysis 테이블 생성
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS analysis (
                     store_id INT PRIMARY KEY,                     -- stores 테이블의 store_id를 참조
-                    menu_photo TEXT,                               -- 메뉴 사진 URL 또는 경로
-                    wordcloud TEXT,                                -- 워드클라우드 데이터
-                    negative_ratio TEXT,                           -- 부정적 감정 비율
-                    distribution TEXT,                             -- 감정 분포 데이터
-                    keyword TEXT,                                  -- 키워드 데이터
-                    raderchart TEXT,                       -- 레이더 차트 데이터
+                    menu_photo VARCHAR(500),                      -- 메뉴 사진 URL 또는 경로
+                    wordcloud VARCHAR(500),                       -- 워드클라우드 데이터
+                    negative_ratio VARCHAR(500),                  -- 부정적 감정 비율
+                    distribution VARCHAR(500),                    -- 감정 분포 데이터
+                    keyword VARCHAR(500),                         -- 키워드 데이터
+                    raderchart VARCHAR(500),                      -- 레이더 차트 데이터
                     FOREIGN KEY (store_id) REFERENCES stores(store_id) ON DELETE CASCADE
                 );
             """)

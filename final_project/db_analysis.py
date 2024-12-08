@@ -20,7 +20,7 @@ firebase_folders = {
     "menu_photo": "menu",
     "wordcloud": "1_WordCloud",
     "negative_ratio": "2_NegativeReview_Ratio",
-    "distribution": "3_Distribution",
+    "distribution": "3_Distribution/weighted_rating_vs_price.png",  # 단일 파일 처리
     "keyword": "4_Keyword",
     "raderchart": "5_RadarChart"
 }
@@ -28,21 +28,19 @@ firebase_folders = {
 # 처리할 store_id 리스트
 target_store_ids = [10, 15, 19, 43]
 
-# Firebase에서 파일 URL 가져오기
-def get_file_url(folder, store_id, is_distribution=False):
+# Firebase에서 파일 경로 가져오기
+def get_file_path(folder, store_id):
     bucket = storage.bucket()
 
-    if is_distribution:
-        # Distribution 파일은 하나만 고정 사용
-        blob = bucket.blob(f"{folder}/weighted_rating_vs_price.png")
+    if folder.endswith(".png"):  # distribution 전용 처리
+        blob = bucket.blob(folder)
         if blob.exists():
-            return blob.generate_signed_url(version="v4", expiration=3600)
+            return f"gs://{bucket.name}/{blob.name}"
     else:
-        # 파일 검색 (store_id가 포함된 파일 이름)
         blobs = list(bucket.list_blobs(prefix=folder))
         for blob in blobs:
-            if str(store_id) in blob.name:
-                return blob.generate_signed_url(version="v4", expiration=3600)
+            if f"/{store_id}_" in blob.name or blob.name.endswith(f"/{store_id}.png") or blob.name.endswith(f"/{store_id}.jpg"):
+                return f"gs://{bucket.name}/{blob.name}"
 
     return None
 
@@ -57,14 +55,10 @@ def update_analysis_table():
                 # 각 컬럼별 데이터 처리
                 update_data = {}
                 for column, folder in firebase_folders.items():
-                    if column == "distribution":
-                        file_url = get_file_url(folder, store_id, is_distribution=True)
-                    else:
-                        file_url = get_file_url(folder, store_id)
-
-                    if file_url:
-                        update_data[column] = file_url
-                        print(f"{column} - URL: {file_url}")
+                    file_path = get_file_path(folder, store_id)
+                    if file_path:
+                        update_data[column] = file_path
+                        print(f"{column} - Path: {file_path}")
                     else:
                         print(f"{column} - Firebase에서 파일을 찾을 수 없습니다: {store_id}")
 

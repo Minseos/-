@@ -1,13 +1,11 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 import mysql.connector
 from flask_cors import CORS
 from dbenv import id, pw, host, database
 import os
+import urllib.parse
 
-app = Flask(
-    __name__, 
-    template_folder=os.path.join('C:/fintech_service/final_project', 'templates')
-)
+app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
 
 # 기본 이미지 URL
@@ -22,26 +20,15 @@ db_config = {
     "database": database
 }
 
-# 카테고리 매핑 함수
-def map_category(category):
-    category_map = {
-        "한식": ['한식', '곰탕,설렁탕', '돼지고기구이', '낙지요리', '백반,가정식', '육류,고기요리', '순대,순댓국', '찌개,전골', '정육식당', '장어,먹장어요리', '족발,보쌈', '한식뷔페', '닭요리', '국수'],
-        "중식": ['중식당'],
-        "일식": ['일식당', '생선회', '초밥,롤', '돈가스'],
-        "양식": ['이탈리아음식', '햄버거'],
-        "분식": ['분식', '종합분식', '김밥'],
-        "카페/디저트": ['카페', '카페,디저트', '베이커리'],
-        "치킨": ['치킨,닭강정'],
-        "해물": ['게요리', '매운탕,해물탕', '해물,생선요리'],
-        "요리주점": ['요리주점', '바(BAR)', '맥주,호프', '포장마차'],
-        "다이어트": ['샌드위치']
-    }
-    for main_category, sub_categories in category_map.items():
-        if category in sub_categories:
-            return main_category
-    return "기타"
+# gs:// URL을 HTTP URL로 변환하는 함수
+def convert_gs_to_http(gs_url):
+    if gs_url.startswith("gs://"):
+        bucket_name = "final-project-8f802.firebasestorage.app"  # 정확한 버킷 이름
+        path = gs_url.replace(f"gs://{bucket_name}/", "")  # `gs://` 경로 제거
+        encoded_path = urllib.parse.quote(path, safe="")  # URL 인코딩
+        return f"https://firebasestorage.googleapis.com/v0/b/{bucket_name}/o/{encoded_path}?alt=media"
+    return gs_url
 
-# 1. `/markers` 엔드포인트: 모든 가게 데이터를 반환
 @app.route('/markers', methods=['GET'])
 def get_markers():
     try:
@@ -58,24 +45,18 @@ def get_markers():
         results = cursor.fetchall()
 
         for result in results:
-            result['main_category'] = map_category(result['category'])
+            result['menu_photo'] = convert_gs_to_http(result['menu_photo'])
 
         return jsonify(results)
-    except Error as e:
-        print(f"MySQL Error: {str(e)}")
-        return jsonify({"error": "MySQL에서 문제가 발생했습니다."}), 500
     except Exception as e:
-        print(f"Unexpected Error: {str(e)}")
-        return jsonify({"error": "예기치 않은 문제가 발생했습니다."}), 500
+        print(f"Error in /markers: {str(e)}")
+        return jsonify({"error": "MySQL에서 문제가 발생했습니다."}), 500
     finally:
         if cursor:
             cursor.close()
         if conn:
             conn.close()
 
-
-
-# 2. `/reviews/<store_id>` 엔드포인트: 특정 가게의 상세 리뷰 데이터를 반환 - 상세 정보
 @app.route('/reviews/<int:store_id>', methods=['GET'])
 def get_reviews(store_id):
     try:
@@ -84,17 +65,17 @@ def get_reviews(store_id):
 
         query = """
             SELECT DATE_FORMAT(review_date, '%Y-%m') AS review_date,
-                   review_text,
-                   platform,
-                   naver_rating,
-                   kakao_rating,
-                   google_rating,
-                   stores.store_name,
-                   stores.address,
-                   stores.phone_number,
-                   stores.business_hours,
-                   stores.price_range,
-                   COALESCE(analysis.menu_photo, %s) AS menu_photo
+                review_text,
+                platform,
+                naver_rating,
+                kakao_rating,
+                google_rating,
+                stores.store_name,
+                stores.address,
+                stores.phone_number,
+                stores.business_hours,
+                stores.price_range,
+                COALESCE(analysis.menu_photo, %s) AS menu_photo
             FROM reviews 
             JOIN stores ON stores.store_id = reviews.store_id
             LEFT JOIN analysis ON stores.store_id = analysis.store_id
@@ -108,12 +89,12 @@ def get_reviews(store_id):
             return jsonify({"message": "리뷰가 없습니다."}), 404
 
         response = {
-            "store_name": reviews[0]['store_name'].replace('_', ' '),  # 여기에서 _를 공백으로 변경
+            "store_name": reviews[0]['store_name'].replace('_', ' '),
             "address": reviews[0]['address'],
             "phone_number": reviews[0]['phone_number'] or "-",
             "business_hours": reviews[0]['business_hours'] or "-",
             "price_range": reviews[0]['price_range'] or "-",
-            "menu_photo": reviews[0]['menu_photo'],  # 추가,
+            "menu_photo": convert_gs_to_http(reviews[0]['menu_photo']),
             "reviews": reviews
         }
         return jsonify(response)
@@ -126,8 +107,6 @@ def get_reviews(store_id):
         if conn:
             conn.close()
 
-
-# 3. `/search_reviews` 엔드포인트: 키워드로 리뷰 검색 - 마커 부분
 @app.route('/search_reviews', methods=['GET'])
 def search_reviews():
     keyword = request.args.get('keyword', '').strip()
@@ -141,17 +120,19 @@ def search_reviews():
 
         query = """
             SELECT stores.store_id, stores.store_name AS name, stores.address, stores.category,
-                   COUNT(reviews.review_id) AS keyword_count
+                   COUNT(reviews.review_id) AS keyword_count,
+                   COALESCE(analysis.menu_photo, %s) AS menu_photo
             FROM reviews
             JOIN stores ON stores.store_id = reviews.store_id
+            LEFT JOIN analysis ON stores.store_id = analysis.store_id
             WHERE reviews.review_text LIKE %s
-            GROUP BY stores.store_id, stores.store_name, stores.address, stores.category
+            GROUP BY stores.store_id, stores.store_name, stores.address, stores.category, analysis.menu_photo
         """
-        cursor.execute(query, (f"%{keyword}%",))
+        cursor.execute(query, (DEFAULT_MENU_PHOTO, f"%{keyword}%"))
         results = cursor.fetchall()
 
         for result in results:
-            result['main_category'] = map_category(result['category'])
+            result['menu_photo'] = convert_gs_to_http(result['menu_photo'])
 
         return jsonify({"search_results": results})
     except Exception as e:
@@ -162,7 +143,6 @@ def search_reviews():
             cursor.close()
         if conn:
             conn.close()
-
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)
