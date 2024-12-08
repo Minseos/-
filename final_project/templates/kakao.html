@@ -203,8 +203,8 @@
             );
             offsetIndex = (offsetIndex + 1) % offsets.length;
 
-            // 리뷰 개수를 이름 옆에 추가
-            const displayTitle = `${title} (${keywordCount || 0})`;
+            // 리뷰 개수를 이름 옆에 조건적으로 추가
+            const displayTitle = keywordCount > 0 ? `${title} (${keywordCount})` : title;
 
             console.log(`마커 추가: ${storeId}, ${displayTitle}, 카테고리: ${category}`);
             console.log(`마커 좌표: ${position.getLat()}, ${position.getLng()}`);
@@ -233,6 +233,7 @@
             categoryMarkers[category].push(marker);
             markers[storeId] = marker;
         }
+
 
 
 
