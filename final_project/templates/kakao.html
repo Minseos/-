@@ -259,6 +259,8 @@
                         return;
                     }
 
+                    const meatStoreIds = [10, 15, 19, 43]; // 고기/구이로 필터링할 store_id 목록
+
                     (data.search_results || data).forEach(location => {
                         const cleanedPhotoUrl = cleanPhotoUrl(location.menu_photo);
 
@@ -266,11 +268,14 @@
                             if (status === kakao.maps.services.Status.OK) {
                                 const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
 
+                                // 고기/구이 카테고리 조건 추가
+                                const category = meatStoreIds.includes(location.store_id) ? "고기/구이" : location.main_category;
+
                                 addMarker(
                                     coords, 
                                     location.name, 
                                     location.address, 
-                                    location.main_category, 
+                                    category, // 카테고리를 설정
                                     location.store_id, 
                                     cleanedPhotoUrl, 
                                     location.keyword_count
@@ -280,7 +285,6 @@
                             }
                         });
                     });
-
                 })
                 .catch(error => {
                     console.error('데이터 가져오기 실패:', error);
