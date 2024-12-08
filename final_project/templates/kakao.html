@@ -163,33 +163,56 @@
             return photoUrl || "https://via.placeholder.com/50"; // 기본 이미지 반환
         }
 
+        // 카테고리 매핑
+        const categoryMapping = {
+            '한식': ['한식', '곰탕,설렁탕', '돼지고기구이', '낙지요리', '백반,가정식', '육류,고기요리', '순대,순댓국', '찌개,전골', '정육식당', '장어,먹장어요리', '족발,보쌈', '한식뷔페', '닭요리', '국수'],
+            '중식': ['중식당'],
+            '일식': ['일식당', '생선회', '초밥,롤', '돈가스'],
+            '양식': ['이탈리아음식', '햄버거'],
+            '분식': ['분식', '종합분식', '김밥'],
+            '카페/디저트': ['카페', '카페,디저트', '베이커리'],
+            '치킨': ['치킨,닭강정'],
+            '해물': ['게요리', '매운탕,해물탕', '해물,생선요리'],
+            '요리주점': ['요리주점', '바(BAR)', '맥주,호프', '포장마차'],
+            '다이어트': ['샌드위치']
+        };
 
+        // 카테고리 매핑 함수
+        function getMappedCategory(category) {
+            for (const [key, values] of Object.entries(categoryMapping)) {
+                if (values.includes(category)) {
+                    console.log(`매핑 성공: ${category} → ${key}`);
+                    return key;
+                }
+            }
+            console.log(`매핑 실패: ${category}`);
+            return '기타'; // 매핑되지 않은 경우
+        }
+
+        // 마커 추가 함수 수정
         function addMarker(position, title, address, category, storeId, menuPhotoUrl, keywordCount) {
             if (!storeId || markers[storeId]) {
-                console.log(`중복 마커 제거 또는 유효하지 않은 데이터: ${storeId} (${title})`);
+                console.log(`중복된 마커: ${storeId} (${title})`);
                 return;
             }
 
+            // 위치에 오프셋 적용 (중복 마커 시각적 분리)
             position = new kakao.maps.LatLng(
                 position.getLat() + offsets[offsetIndex].y,
                 position.getLng() + offsets[offsetIndex].x
             );
             offsetIndex = (offsetIndex + 1) % offsets.length;
 
-            var marker = new kakao.maps.Marker({
+            console.log(`마커 추가: ${storeId}, ${title}, 카테고리: ${category}`);
+            console.log(`마커 좌표: ${position.getLat()}, ${position.getLng()}`);
+
+            const marker = new kakao.maps.Marker({
                 position: position,
                 map: map
             });
 
-            var infoContent = `<div style="padding:5px;font-size:14px;"><strong>${title}`;
-            if (keywordCount && keywordCount > 0) {
-                infoContent += ` (${keywordCount})`;
-            }
-            infoContent += `</strong><br>${address}</div>`;
-
-            var infoWindow = new kakao.maps.InfoWindow({
-                content: infoContent
-            });
+            const infoContent = `<div style="padding:5px;font-size:14px;"><strong>${title}</strong><br>${address}</div>`;
+            const infoWindow = new kakao.maps.InfoWindow({ content: infoContent });
 
             kakao.maps.event.addListener(marker, "click", function () {
                 toggleInfoWindow(marker, infoWindow);
@@ -200,9 +223,10 @@
                 categoryMarkers[category] = [];
             }
             categoryMarkers[category].push(marker);
-
             markers[storeId] = marker;
         }
+
+
 
         function toggleInfoWindow(marker, infoWindow) {
             if (openInfoWindow && openInfoWindow !== infoWindow) {
@@ -237,14 +261,20 @@
         }
 
         function clearMarkers() {
-            for (var key in markers) {
-                markers[key].setMap(null);
-            }
-            markers = {};
+            // 모든 마커를 맵에서 제거
+            Object.keys(markers).forEach(storeId => {
+                if (markers[storeId]) markers[storeId].setMap(null);
+            });
+
+            // 모든 데이터를 초기화
+            markers = {}; 
+            categoryMarkers = {}; 
         }
 
+        // 데이터 가져오기 함수 수정
         function fetchMarkers(keyword = null) {
-            clearMarkers();
+            clearMarkers(); // 기존 마커 초기화
+
             const url = keyword
                 ? `http://127.0.0.1:5000/search_reviews?keyword=${encodeURIComponent(keyword)}`
                 : `http://127.0.0.1:5000/markers`;
@@ -252,32 +282,29 @@
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    if ((!data.search_results || data.search_results.length === 0) && data.length === 0) {
-                        alert("검색 결과가 없습니다.");
-                        clearMarkers();
-                        document.getElementById('info-panel').style.display = 'none';
-                        return;
-                    }
-
-                    const meatStoreIds = [10, 15, 19, 43]; // 고기/구이로 필터링할 store_id 목록
+                    const meatStoreIds = [10, 15, 19, 43]; // 고기/구이 store_id 목록
 
                     (data.search_results || data).forEach(location => {
                         const cleanedPhotoUrl = cleanPhotoUrl(location.menu_photo);
-
                         geocoder.addressSearch(location.address, function (result, status) {
                             if (status === kakao.maps.services.Status.OK) {
                                 const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
 
-                                // 고기/구이 카테고리 조건 추가
-                                const category = meatStoreIds.includes(location.store_id) ? "고기/구이" : location.main_category;
+                                const category = meatStoreIds.includes(location.store_id)
+                                    ? "고기/구이"
+                                    : getMappedCategory(location.category);
+
+                                if (!categoryMarkers[category]) {
+                                    categoryMarkers[category] = [];
+                                }
 
                                 addMarker(
-                                    coords, 
-                                    location.name, 
-                                    location.address, 
-                                    category, // 카테고리를 설정
-                                    location.store_id, 
-                                    cleanedPhotoUrl, 
+                                    coords,
+                                    location.name,
+                                    location.address,
+                                    category,
+                                    location.store_id,
+                                    cleanedPhotoUrl,
                                     location.keyword_count
                                 );
                             } else {
@@ -285,6 +312,8 @@
                             }
                         });
                     });
+
+                    console.log("카테고리별 마커 데이터:", categoryMarkers);
                 })
                 .catch(error => {
                     console.error('데이터 가져오기 실패:', error);
@@ -292,12 +321,44 @@
                 });
         }
 
+
+        function filterByCategory(category) {
+            console.log(`선택된 카테고리: ${category}`);
+
+            // 모든 마커 숨기기
+            Object.keys(markers).forEach(storeId => markers[storeId].setMap(null));
+
+            if (category === "전체") {
+                // 모든 마커 보이기
+                Object.keys(categoryMarkers).forEach(mappedCategory => {
+                    categoryMarkers[mappedCategory].forEach(marker => marker.setMap(map));
+                });
+            } else if (categoryMarkers[category]) {
+                // 선택된 카테고리의 마커만 보이기
+                categoryMarkers[category].forEach(marker => marker.setMap(map));
+            } else {
+                console.log(`선택한 카테고리에 대한 마커가 없습니다: ${category}`);
+            }
+        }
+
+        // 초기화 호출
+        fetchMarkers();
+
+
+        // 카테고리 버튼 이벤트 핸들러
+        document.querySelectorAll(".category-button").forEach(button => {
+            button.addEventListener("click", function () {
+                document.querySelector(".category-button.active").classList.remove("active");
+                this.classList.add("active");
+                const category = this.dataset.category;
+                filterByCategory(category);
+            });
+        });
+
         function searchByKeyword() {
             const keyword = document.getElementById('keyword-search').value.trim();
             fetchMarkers(keyword || null);
         }
-
-        fetchMarkers();
 
         // 카테고리 버튼 클릭 이벤트 등록
         document.querySelectorAll(".category-button").forEach(button => {
@@ -309,19 +370,6 @@
             });
         });
 
-        function filterByCategory(category) {
-            clearMarkers();
-
-            if (category === "전체") {
-                Object.keys(categoryMarkers).forEach(cat => {
-                    categoryMarkers[cat].forEach(marker => marker.setMap(map));
-                });
-            } else {
-                if (categoryMarkers[category]) {
-                    categoryMarkers[category].forEach(marker => marker.setMap(map));
-                }
-            }
-        }       
 
 
     </script>
