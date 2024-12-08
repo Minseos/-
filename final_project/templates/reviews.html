@@ -278,19 +278,27 @@
                     const analysisReportContent = document.getElementById('analysis-report-content');
                     const imagePaths = [
                         `5_RadarChart/${store_id}_radar_chart.png`,
-                        `1_WordCloud/${store_id}.png`,
-                        `3_Distribution/${store_id}_1.png`,
-                        `2_NegativeReview_Ratio/${store_id}.png`,
-                        `4_Keyword/${store_id}.png`,
+                        `1_WordCloud/${store_id}_wordcloud.png`,
+                        `3_Distribution/weighted_rating_vs_price.png`,
+                        `2_NegativeReview_Ratio/${store_id}_리뷰_비율.png`,
+                        `4_Keyword/${store_id}_keyword.png`,
                     ];
 
                     const reportContainer = document.createElement('div');
                     reportContainer.style.display = 'flex'; // Flexbox 사용
                     reportContainer.style.flexDirection = 'column'; // 세로 정렬
                     reportContainer.style.alignItems = 'center'; // 가로 가운데 정렬
-                    reportContainer.style.justifyContent = 'center'; // 세로 가운데 정렬 (필요시 추가)
+                    reportContainer.style.justifyContent = 'center'; // 세로 가운데 정렬
 
-                    imagePaths.forEach(path => {
+                    // 소제목 추가
+                    const negativeReviewTitle = document.createElement('h3');
+                    negativeReviewTitle.textContent = "리뷰 분석 리포트";
+                    negativeReviewTitle.style.marginBottom = "40px";
+                    negativeReviewTitle.style.fontSize = "25px";
+                    negativeReviewTitle.style.color = "#333"; // 글자 색상 설정
+                    reportContainer.appendChild(negativeReviewTitle);
+
+                    imagePaths.forEach((path, index) => {
                         const img = document.createElement('img');
                         img.src = getFirebaseImageUrl("final-project-8f802.firebasestorage.app", path);
                         img.alt = "분석 이미지";
@@ -300,6 +308,26 @@
                             this.src = "https://via.placeholder.com/150";
                         };
                         reportContainer.appendChild(img);
+
+                        // 구분선 추가
+                        if (index < imagePaths.length - 1) { // 마지막 이미지는 제외
+                            const divider = document.createElement('hr');
+                            divider.style.width = "90%";
+                            divider.style.border = "0.5px solid #ccc";
+                            divider.style.margin = "20px 0";
+                            reportContainer.appendChild(divider);
+                        }
+
+
+                        // 부정 리뷰 키워드 이미지를 추가하는 조건
+                        if (index === 3) { // '부정 리뷰 비율' 차트 아래 추가
+                            const negativeReviewTitle = document.createElement('h3');
+                            negativeReviewTitle.textContent = "부정 리뷰 키워드";
+                            negativeReviewTitle.style.marginTop = "30px";
+                            negativeReviewTitle.style.fontSize = "20px";
+                            negativeReviewTitle.style.color = "#333";
+                            reportContainer.appendChild(negativeReviewTitle);
+                        }
                     });
 
                     analysisReportContent.innerHTML = "";
