@@ -285,12 +285,17 @@
                     ];
 
                     const reportContainer = document.createElement('div');
+                    reportContainer.style.display = 'flex'; // Flexbox 사용
+                    reportContainer.style.flexDirection = 'column'; // 세로 정렬
+                    reportContainer.style.alignItems = 'center'; // 가로 가운데 정렬
+                    reportContainer.style.justifyContent = 'center'; // 세로 가운데 정렬 (필요시 추가)
+
                     imagePaths.forEach(path => {
                         const img = document.createElement('img');
                         img.src = getFirebaseImageUrl("final-project-8f802.firebasestorage.app", path);
                         img.alt = "분석 이미지";
-                        img.style.width = "100%";
-                        img.style.marginBottom = "20px";
+                        img.style.width = "50%";
+                        img.style.marginBottom = "15px";
                         img.onerror = function () {
                             this.src = "https://via.placeholder.com/150";
                         };
