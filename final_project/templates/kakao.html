@@ -203,7 +203,10 @@
             );
             offsetIndex = (offsetIndex + 1) % offsets.length;
 
-            console.log(`마커 추가: ${storeId}, ${title}, 카테고리: ${category}`);
+            // 리뷰 개수를 이름 옆에 추가
+            const displayTitle = `${title} (${keywordCount || 0})`;
+
+            console.log(`마커 추가: ${storeId}, ${displayTitle}, 카테고리: ${category}`);
             console.log(`마커 좌표: ${position.getLat()}, ${position.getLng()}`);
 
             const marker = new kakao.maps.Marker({
@@ -211,7 +214,12 @@
                 map: map
             });
 
-            const infoContent = `<div style="padding:5px;font-size:14px;"><strong>${title}</strong><br>${address}</div>`;
+            // 정보창 내용 설정
+            const infoContent = `
+                <div style="padding:5px;font-size:14px;">
+                    <strong>${displayTitle}</strong><br>
+                    ${address}
+                </div>`;
             const infoWindow = new kakao.maps.InfoWindow({ content: infoContent });
 
             kakao.maps.event.addListener(marker, "click", function () {
@@ -225,6 +233,7 @@
             categoryMarkers[category].push(marker);
             markers[storeId] = marker;
         }
+
 
 
 
@@ -247,7 +256,7 @@
             document.getElementById('info-image').src = cleanPhotoUrl(imageUrl); // URL 변환 후 적용
 
             if (reviewCount && reviewCount > 0) {
-                document.getElementById('info-reviews').textContent = `키워드 리뷰 개수: ${reviewCount}`;
+                document.getElementById('info-reviews').textContent = `키워드 리뷰 개수: ${reviewCount}개`;
                 document.getElementById('info-reviews').style.display = 'block';
             } else {
                 document.getElementById('info-reviews').style.display = 'none';
@@ -259,6 +268,7 @@
 
             document.getElementById('info-panel').style.display = 'block';
         }
+
 
         function clearMarkers() {
             // 모든 마커를 맵에서 제거
