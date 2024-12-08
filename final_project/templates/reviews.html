@@ -204,7 +204,48 @@
                 return;
             }
 
-            // 서버에서 리뷰 데이터를 가져옴
+            function getFirebaseImageUrl(bucketName, path) {
+                const encodedPath = encodeURIComponent(path);
+                return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodedPath}?alt=media`;
+            }
+
+            function renderReviews(reviews) {
+                const container = document.getElementById('reviews-container');
+                if (reviews.length === 0) {
+                    container.innerHTML = "<p>리뷰가 없습니다.</p>";
+                    return;
+                }
+
+                const reviewsHtml = reviews.map(review => {
+                    const platformClass = review.platform === '네이버' ? 'naver' : review.platform === '카카오' ? 'kakao' : 'google';
+                    return `<div class="review">
+                                <div class="review-date">
+                                    <span class="platform ${platformClass}">[${review.platform}]</span> ${review.review_date}
+                                </div>
+                                <div class="review-text">${review.review_text}</div>
+                            </div>`;
+                }).join('');
+
+                container.innerHTML = reviewsHtml;
+            }
+
+            function filterReviews(reviews) {
+                const naverChecked = document.getElementById('naver-checkbox').checked;
+                const kakaoChecked = document.getElementById('kakao-checkbox').checked;
+                const googleChecked = document.getElementById('google-checkbox').checked;
+                const searchKeyword = document.getElementById('review-search').value.toLowerCase();
+
+                const filteredReviews = reviews.filter(review => {
+                    if (review.platform === '네이버' && !naverChecked) return false;
+                    if (review.platform === '카카오' && !kakaoChecked) return false;
+                    if (review.platform === '구글' && !googleChecked) return false;
+                    if (searchKeyword && !review.review_text.toLowerCase().includes(searchKeyword)) return false;
+                    return true;
+                });
+
+                renderReviews(filteredReviews);
+            }
+
             fetch(`http://127.0.0.1:5000/reviews/${store_id}`)
                 .then(response => response.json())
                 .then(data => {
@@ -224,84 +265,33 @@
                     document.getElementById('google-rating').textContent = data.reviews[0]?.google_rating ?? '-';
                     document.getElementById('store-image').src = data.menu_photo || "https://via.placeholder.com/150";
 
-                    // 리뷰 목록 저장
                     const reviews = data.reviews;
+                    renderReviews(reviews);
 
-                    // 리뷰 필터링 및 렌더링 함수
-                    function filterReviews() {
-                        const naverChecked = document.getElementById('naver-checkbox').checked;
-                        const kakaoChecked = document.getElementById('kakao-checkbox').checked;
-                        const googleChecked = document.getElementById('google-checkbox').checked;
-                        const searchKeyword = document.getElementById('review-search').value.toLowerCase();
-
-                        const filteredReviews = reviews.filter(review => {
-                            if (review.platform === '네이버' && !naverChecked) return false;
-                            if (review.platform === '카카오' && !kakaoChecked) return false;
-                            if (review.platform === '구글' && !googleChecked) return false;
-                            if (searchKeyword && !review.review_text.toLowerCase().includes(searchKeyword)) return false;
-                            return true;
-                        });
-
-                        renderReviews(filteredReviews);
-                    }
-
-                    function renderReviews(reviewsToRender) {
-                        const container = document.getElementById('reviews-container');
-                        if (reviewsToRender.length === 0) {
-                            container.innerHTML = "<p>리뷰가 없습니다.</p>";
-                        } else {
-                            const reviewsHtml = reviewsToRender.map(review => {
-                                const platformClass = review.platform === '네이버' ? 'naver' : review.platform === '카카오' ? 'kakao' : 'google';
-                                return `<div class="review">
-                                    <div class="review-date"><span class="platform ${platformClass}">[${review.platform}]</span> ${review.review_date}</div>
-                                    <div class="review-text">${review.review_text}</div>
-                                </div>`;
-                            }).join('');
-                            container.innerHTML = reviewsHtml;
-                        }
-                    }
-
-                    filterReviews();
-
-                    document.getElementById('naver-checkbox').addEventListener('change', filterReviews);
-                    document.getElementById('kakao-checkbox').addEventListener('change', filterReviews);
-                    document.getElementById('google-checkbox').addEventListener('change', filterReviews);
-                    document.getElementById('review-search').addEventListener('input', filterReviews);
-
-                    // 탭 전환 이벤트 리스너
-                    document.getElementById('all-reviews-tab').addEventListener('click', function () {
-                        document.getElementById('all-reviews-content').classList.add('active');
-                        document.getElementById('analysis-report-content').classList.remove('active');
-                        this.classList.add('active');
-                        document.getElementById('analysis-report-tab').classList.remove('active');
-                    });
-
-                    document.getElementById('analysis-report-tab').addEventListener('click', function () {
-                        document.getElementById('analysis-report-content').classList.add('active');
-                        document.getElementById('all-reviews-content').classList.remove('active');
-                        this.classList.add('active');
-                        document.getElementById('all-reviews-tab').classList.remove('active');
-                    });
+                    // 이벤트 핸들러 등록
+                    document.getElementById('naver-checkbox').addEventListener('change', () => filterReviews(reviews));
+                    document.getElementById('kakao-checkbox').addEventListener('change', () => filterReviews(reviews));
+                    document.getElementById('google-checkbox').addEventListener('change', () => filterReviews(reviews));
+                    document.getElementById('review-search').addEventListener('input', () => filterReviews(reviews));
 
                     // 분석 리포트 렌더링
                     const analysisReportContent = document.getElementById('analysis-report-content');
                     const imagePaths = [
-                        `/5_RadarChart/${store_id}.png`,
-                        `/1_WordCloud/${store_id}.png`,
-                        `/3_Distribution/${store_id}_1.png`,
-                        `/2_NegativeReview_Ratio/${store_id}.png`,
-                        `/4_Keyword/${store_id}.png`,
+                        `5_RadarChart/${store_id}_radar_chart.png`,
+                        `1_WordCloud/${store_id}.png`,
+                        `3_Distribution/${store_id}_1.png`,
+                        `2_NegativeReview_Ratio/${store_id}.png`,
+                        `4_Keyword/${store_id}.png`,
                     ];
 
                     const reportContainer = document.createElement('div');
                     imagePaths.forEach(path => {
                         const img = document.createElement('img');
-                        img.src = `https://firebasestorage.googleapis.com/v0/b/final-project-8f802.firebasestorage.app/o${path}?alt=media`;
-                        // img.src = `https://final-project-8f802.firebasestorage.app${path}`;
+                        img.src = getFirebaseImageUrl("final-project-8f802.firebasestorage.app", path);
                         img.alt = "분석 이미지";
                         img.style.width = "100%";
                         img.style.marginBottom = "20px";
-                        img.onerror = function () { // 기본 이미지 처리
+                        img.onerror = function () {
                             this.src = "https://via.placeholder.com/150";
                         };
                         reportContainer.appendChild(img);
@@ -313,6 +303,21 @@
                 .catch(error => {
                     document.getElementById('reviews-container').innerHTML = `<p>오류가 발생했습니다: ${error.message}</p>`;
                 });
+
+            // 탭 전환 이벤트
+            document.getElementById('all-reviews-tab').addEventListener('click', function () {
+                document.getElementById('all-reviews-content').classList.add('active');
+                document.getElementById('analysis-report-content').classList.remove('active');
+                this.classList.add('active');
+                document.getElementById('analysis-report-tab').classList.remove('active');
+            });
+
+            document.getElementById('analysis-report-tab').addEventListener('click', function () {
+                document.getElementById('analysis-report-content').classList.add('active');
+                document.getElementById('all-reviews-content').classList.remove('active');
+                this.classList.add('active');
+                document.getElementById('all-reviews-tab').classList.remove('active');
+            });
         });
 
     </script>
