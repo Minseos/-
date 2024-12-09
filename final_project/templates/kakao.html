@@ -3,6 +3,14 @@
 <head>
     <meta charset="utf-8" />
     <title>Kakao 지도와 키워드 검색</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4218BPBW39"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-4218BPBW39');
+    </script>
     <style>
         html, body {
             width: 100%;
@@ -208,6 +216,11 @@
             const infoWindow = new kakao.maps.InfoWindow({ content: infoContent });
 
             kakao.maps.event.addListener(marker, "click", function () {
+                gtag('event', 'marker_click', {
+                    'event_category': 'Map Interaction',
+                    'event_label': title,
+                    'value': 1
+                });
                 toggleInfoWindow(marker, infoWindow);
                 showInfoPanel(title, address, storeId, menuPhotoUrl || "https://via.placeholder.com/50", keywordCount);
             });
@@ -305,17 +318,30 @@
 
         document.querySelectorAll(".category-button").forEach(button => {
             button.addEventListener("click", function () {
+                const category = this.dataset.category;
+                gtag('event', 'category_click', {
+                    'event_category': 'Category Selection',
+                    'event_label': category,
+                    'value': 1
+                });
+                // 기존 기능
                 document.querySelector(".category-button.active").classList.remove("active");
                 this.classList.add("active");
-                const category = this.dataset.category;
                 filterByCategory(category);
             });
         });
 
+
         function searchByKeyword() {
             const keyword = document.getElementById('keyword-search').value.trim();
+            gtag('event', 'search', {
+                'event_category': 'Keyword Search',
+                'event_label': keyword,
+                'value': 1
+            });
             fetchMarkers(keyword || null);
         }
+
     </script>
 </body>
 </html>

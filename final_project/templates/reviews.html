@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>리뷰 보기</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4218BPBW39"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-4218BPBW39');
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -305,10 +313,42 @@
                     renderReviews(reviews);
 
                     // 이벤트 핸들러 등록
-                    document.getElementById('naver-checkbox').addEventListener('change', () => filterReviews(reviews));
-                    document.getElementById('kakao-checkbox').addEventListener('change', () => filterReviews(reviews));
-                    document.getElementById('google-checkbox').addEventListener('change', () => filterReviews(reviews));
-                    document.getElementById('review-search').addEventListener('input', () => filterReviews(reviews));
+                    document.getElementById('naver-checkbox').addEventListener('change', () => {
+                        gtag('event', 'filter_change', {
+                            'event_category': 'Review Filter',
+                            'event_label': 'Naver',
+                            'value': document.getElementById('naver-checkbox').checked ? 1 : 0
+                        });
+                        filterReviews(reviews);
+                    });
+
+                    document.getElementById('kakao-checkbox').addEventListener('change', () => {
+                        gtag('event', 'filter_change', {
+                            'event_category': 'Review Filter',
+                            'event_label': 'Naver',
+                            'value': document.getElementById('kakao-checkbox').checked ? 1 : 0
+                        });
+                        filterReviews(reviews);
+                    });
+
+                    document.getElementById('google-checkbox').addEventListener('change', () => {
+                        gtag('event', 'filter_change', {
+                            'event_category': 'Review Filter',
+                            'event_label': 'Naver',
+                            'value': document.getElementById('google-checkbox').checked ? 1 : 0
+                        });
+                        filterReviews(reviews);
+                    });
+
+                    document.getElementById('review-search').addEventListener('input', () => {
+                        const keyword = document.getElementById('review-search').value;
+                        gtag('event', 'review_search', {
+                            'event_category': 'Review Search',
+                            'event_label': keyword,
+                            'value': 1
+                        });
+                        filterReviews(reviews);
+                    });
 
                     // 분석 리포트 렌더링
                     const analysisReportContent = document.getElementById('analysis-report-content');
