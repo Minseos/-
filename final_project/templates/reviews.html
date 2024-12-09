@@ -12,14 +12,22 @@
         }
         .store-info {
             display: flex;
-            justify-content: space-between;
+            flex-direction: row-reverse; /* 사진을 오른쪽으로 이동 */
             align-items: flex-start;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
+            padding: 30px 20px 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            gap: 20px; /* 이미지와 텍스트 사이 간격 추가 */
         }
+
         .store-info img {
-            width: 100px;
-            height: 100px;
-            margin-right: 20px;
+            max-width: 150px; /* 최대 너비를 150px로 제한 */
+            max-height: 150px; /* 최대 높이를 150px로 제한 */
+            width: auto; /* 원본 비율 유지 */
+            height: auto; /* 원본 비율 유지 */
+            object-fit: contain; /* 비율을 유지하면서 최대 크기에 맞춤 */
+            border-radius: 8px; /* 모서리 둥글게 */
         }
         .store-info h1 {
             margin: 0;
@@ -30,6 +38,28 @@
             font-size: 14px;
             color: #666;
         }
+        .store-details-container {
+            flex: 1 1 60%; /* 텍스트 영역 크기 설정 */
+        }
+
+        @media (max-width: 768px) { /* 화면 너비가 768px 이하일 때 */
+            .store-info {
+                flex-direction: column; /* 세로 방향 배치 */
+                align-items: center; /* 가운데 정렬 */
+            }
+
+            .store-info img {
+                flex: 1 1 auto; /* 크기 조정 해제 */
+                width: 100%; /* 화면에 꽉 차도록 */
+            }
+
+            .store-details-container {
+                flex: 1 1 auto; /* 크기 조정 해제 */
+                width: 100%; /* 텍스트도 화면 크기에 맞춤 */
+                text-align: center; /* 텍스트 가운데 정렬 */
+            }
+        }
+
 
         .store-details {
             margin-top: 10px;
@@ -39,13 +69,18 @@
             font-size: 14px;
             display: flex;
             gap: 20px; /* 별점 간 간격 */
+            align-items: center; /* 별점 텍스트를 수직 가운데 정렬 */
+            justify-content: flex-start; /* 왼쪽 정렬 */
+            flex-wrap: wrap; /* 컨테이너가 좁아질 경우 줄바꿈 허용 */
+
         }
         .rating span {
             padding: 5px 10px;
-            border-radius: 4px;
+            border-radius: 8px;
             display: inline-block;
             white-space: nowrap; /* 텍스트 줄바꿈 방지 */
-            font-weight: bold; /* 텍스트를 볼드체로 변경 */
+            font-weight: bold;
+            text-align: center; /* 텍스트 가운데 정렬 */
         }
         .rating .naver {
             background-color: #e6f4e6;
@@ -153,6 +188,7 @@
 </head>
 <body>
     <div class="store-info">
+        <img id="store-image" src="https://via.placeholder.com/150" alt="가게 이미지">
         <div class="store-details-container">
             <h1 id="store-name">가게 이름</h1>
             <p id="store-address">가게 주소</p>
@@ -167,9 +203,8 @@
                 <span class="google">구글&nbsp; : <span id="google-rating">-</span></span>
             </div>
         </div>
-        <img id="store-image" src="https://via.placeholder.com/150" alt="가게 이미지" style="width: 300px; height: 200px; object-fit: cover; border-radius: 8px;">
-
     </div>
+    
     
 
     <div class="tab-menu">
