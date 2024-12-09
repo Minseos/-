@@ -101,6 +101,15 @@
     <div id="search-section">
         <input type="text" id="keyword-search" placeholder="리뷰 키워드 검색..." style="width: 70%; padding: 8px; font-size: 14px;">
         <button onclick="searchByKeyword()" style="padding: 8px; font-size: 14px;">검색</button>
+        <select id="price-range" style="padding: 8px; font-size: 14px; margin-left: 10px;">
+            <option value="">가격대 선택</option>
+            <option value="1-10000">₩1~10,000</option>
+            <option value="10000-20000">₩10,000~20,000</option>
+            <option value="20000-30000">₩20,000~30,000</option>
+            <option value="30000-40000">₩30,000~40,000</option>
+            <option value="40000-50000">₩40,000~50,000</option>
+            <option value="100000-">₩100,000 이상</option>
+        </select>
     </div>
     <div id="map"></div>
     <div id="info-panel">
