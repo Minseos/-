@@ -260,7 +260,12 @@
             }
 
             document.getElementById('view-reviews').onclick = function () {
-                window.open(`/reviews.html?storeId=${storeId}`, '_blank');
+                const keyword = document.getElementById('keyword-search').value.trim(); // 현재 검색 키워드 가져오기
+                const queryParams = new URLSearchParams({ storeId: storeId });
+                if (keyword) {
+                    queryParams.append('keyword', keyword); // 키워드 추가
+                }
+                window.open(`/reviews.html?${queryParams.toString()}`, '_blank');
             };
 
             document.getElementById('info-panel').style.display = 'block';

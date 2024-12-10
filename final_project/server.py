@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, render_template
 import mysql.connector
 from flask_cors import CORS
 from dbenv import id, pw, host, database
@@ -20,6 +20,12 @@ db_config = {
     "database": database
 }
 
+
+#루트 경로에서 kakao.html 렌더링
+@app.route('/')
+def home():
+    return render_template('kakao.html')
+
 # gs:// URL을 HTTP URL로 변환하는 함수
 def convert_gs_to_http(gs_url):
     if gs_url.startswith("gs://"):
@@ -28,6 +34,8 @@ def convert_gs_to_http(gs_url):
         encoded_path = urllib.parse.quote(path, safe="")  # URL 인코딩
         return f"https://firebasestorage.googleapis.com/v0/b/{bucket_name}/o/{encoded_path}?alt=media"
     return gs_url
+
+
 
 @app.route('/markers', methods=['GET'])
 def get_markers():
@@ -60,6 +68,14 @@ def get_markers():
             cursor.close()
         if conn:
             conn.close()
+
+# reviews.html 파일 렌더링을 위한 라우트 추가
+@app.route('/reviews.html')
+def reviews_page():
+    store_id = request.args.get('storeId')
+    if not store_id:
+        return jsonify({"error": "storeId가 제공되지 않았습니다."}), 400
+    return render_template('reviews.html', store_id=store_id)
 
 
 @app.route('/reviews/<int:store_id>', methods=['GET'])
