@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, send_from_directory, render_template
 import mysql.connector
 from flask_cors import CORS
-from dbenv import id, pw, host, database
+from dotenv import load_dotenv
 import os
 import urllib.parse
 
@@ -11,14 +11,17 @@ CORS(app)
 # 기본 이미지 URL
 DEFAULT_MENU_PHOTO = "https://via.placeholder.com/150"
 
+load_dotenv(dotenv_path = '.env')
+
 # MySQL 연결 정보
 db_config = {
-    "host": host.split(":")[0],
-    "port": int(host.split(":")[1]) if ":" in host else 3306,
-    "user": id,
-    "password": pw,
-    "database": database
+    "host": os.getenv("host", "localhost").split(":")[0],
+    "port": int(os.getenv("host", "localhost:3306").split(":")[1]) if ":" in os.getenv("host", "localhost:3306") else 3306,
+    "user": os.getenv("id", "root"),
+    "password": os.getenv("pw", ""),
+    "database": os.getenv("database", "test")
 }
+
 
 
 #루트 경로에서 kakao.html 렌더링
@@ -39,6 +42,8 @@ def convert_gs_to_http(gs_url):
 
 @app.route('/markers', methods=['GET'])
 def get_markers():
+    # conn = None
+    # cursor = None
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
@@ -49,19 +54,19 @@ def get_markers():
                     WHEN s.store_id IN (10, 15, 19, 43) THEN '고기/구이'
                     ELSE s.category
                 END AS category,
-                COALESCE(a.menu_photo, 'https://via.placeholder.com/150') AS menu_photo
+                COALESCE(a.menu_photo, %s) AS menu_photo
             FROM stores s
             LEFT JOIN analysis a ON s.store_id = a.store_id
         """
-        cursor.execute(query)
+        cursor.execute(query, (DEFAULT_MENU_PHOTO,))
         results = cursor.fetchall()
 
         for result in results:
             result['menu_photo'] = convert_gs_to_http(result['menu_photo'])
 
         return jsonify(results)
-    except Exception as e:
-        print(f"Error in /markers: {str(e)}")
+    except mysql.connector.Error as e:
+        print(f"Error in /markers: {e}")
         return jsonify({"error": "MySQL에서 문제가 발생했습니다."}), 500
     finally:
         if cursor:
@@ -165,5 +170,6 @@ def search_reviews():
         if conn:
             conn.close()
 
-if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+if __name__ == '__main__':  
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
