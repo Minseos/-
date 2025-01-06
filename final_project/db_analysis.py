@@ -25,8 +25,7 @@ firebase_folders = {
     "raderchart": "5_RadarChart"
 }
 
-# 처리할 store_id 리스트
-target_store_ids = [10, 15, 19, 43]
+
 
 # Firebase에서 파일 경로 가져오기
 def get_file_path(folder, store_id):
